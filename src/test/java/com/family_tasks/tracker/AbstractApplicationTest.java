@@ -12,8 +12,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles("test")
 public class AbstractApplicationTest {
 
-
     @Autowired
     protected TestRestTemplate client;
-
 }
