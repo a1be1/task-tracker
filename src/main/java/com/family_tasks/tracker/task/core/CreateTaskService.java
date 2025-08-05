@@ -15,6 +15,7 @@ public class CreateTaskService {
     private final TaskRepository taskRepository;
 
     public CreateTaskApiResponse createTask(CreateTaskApiRequest apiRequest) {
+        //TODO: validate users existence
         TaskEntity taskEntity = taskFactory.createTask(apiRequest);
         taskRepository.saveTask(taskEntity);
         return toResponse(taskEntity);
@@ -26,9 +27,9 @@ public class CreateTaskService {
                 .name(taskEntity.getName())
                 .description(taskEntity.getDescription())
                 .priority(taskEntity.getPriority())
-                .reporter(taskEntity.getReporter())
-                .executor(taskEntity.getExecutor())
-                .isPrivate(taskEntity.getIsPrivate())
+                .reporterId(taskEntity.getReporterId())
+                .executorId(taskEntity.getExecutorId())
+                .confidential(taskEntity.isConfidential())
                 .sharedWith(taskEntity.getSharedWith())
                 .deadline(taskEntity.getDeadline())
                 .createdAt(taskEntity.getCreatedAt())

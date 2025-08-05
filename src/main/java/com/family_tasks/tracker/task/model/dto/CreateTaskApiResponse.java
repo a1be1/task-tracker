@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.catalina.User;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -20,10 +19,10 @@ public class CreateTaskApiResponse {
     private final String name;
     private final String description;
     private final Priority priority;
-    private final User reporter;
-    private final User executor;
-    private final Boolean isPrivate;
-    private final Set<User> sharedWith;
+    private final String reporterId;
+    private final String executorId;
+    private final boolean confidential;
+    private final Set<String> sharedWith;
     private final LocalDateTime deadline;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;

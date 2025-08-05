@@ -2,6 +2,7 @@ package com.family_tasks.tracker.task.core;
 
 import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
+import com.family_tasks.tracker.task.model.enums.Priority;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -20,16 +21,16 @@ public class TaskFactory {
                 .taskId(id)
                 .name(request.getName())
                 .description(request.getDescription())
-                .priority(request.getPriority())
-                .reporter(request.getReporter())
-                .executor(request.getExecutor())
-                .isPrivate(request.getIsPrivate())
+                .priority(Priority.valueOf(request.getPriority()))
+                .reporterId(request.getReporterId())
+                .executorId(request.getExecutorId())
+                .confidential(request.isConfidential())
                 .sharedWith(request.getSharedWith())
                 .deadline(request.getDeadline())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-        log.info("Creating a new user. Result: {}", entity);
+        log.info("Creating a new task. Result: {}", entity);
         return entity;
     }
 }
