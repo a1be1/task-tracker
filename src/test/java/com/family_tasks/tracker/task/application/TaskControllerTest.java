@@ -49,7 +49,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         return CreateTaskApiRequest.builder()
                 .name("Name of task")
                 .description("Description of task")
-                .priority(String.valueOf(Priority.HIGH))
+                .priority(Priority.HIGH.name())
                 .reporterId(UUID.randomUUID().toString())
                 .executorId(UUID.randomUUID().toString())
                 .confidential(true)
