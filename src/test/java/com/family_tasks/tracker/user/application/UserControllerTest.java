@@ -1,14 +1,18 @@
 package com.family_tasks.tracker.user.application;
 
 import com.family_tasks.tracker.AbstractApplicationTest;
+import com.family_tasks.tracker.common.error.ErrorResponse;
+import com.family_tasks.tracker.common.validation.ValidationMessage;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
 import com.family_tasks.tracker.user.model.dto.CreateUserApiResponse;
+import com.family_tasks.tracker.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import static com.family_tasks.tracker.common.validation.ValidationConstants.USER_NAME_MAX_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -35,6 +39,53 @@ class UserControllerTest extends AbstractApplicationTest {
 
         String userId = response.getUserId();
         assertThat(userRepository.getUser(userId)).isNotNull();
+    }
+
+    @Test
+    void invalidUserName_createUser() {
+        //prepare
+        CreateUserApiRequest request = CreateUserApiRequest.builder()
+                .name(TestUtils.randomString(USER_NAME_MAX_LENGTH + 1))
+                .admin(true)
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(ValidationMessage.USER_NAME_TOO_LONG);
+    }
+
+    @Test
+    void emptyUserName_createUser() {
+        //prepare
+        CreateUserApiRequest request = CreateUserApiRequest.builder()
+                .admin(true)
+                .name(null)
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(ValidationMessage.USER_NAME_NOT_SPECIFIED);
+    }
+
+    @Test
+    void emptyIsAdmin_createUser() {
+        //prepare
+        CreateUserApiRequest request = CreateUserApiRequest.builder()
+                .admin(null)
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(ValidationMessage.USER_NAME_NOT_SPECIFIED);
     }
 
     private CreateUserApiRequest buildRequest() {
