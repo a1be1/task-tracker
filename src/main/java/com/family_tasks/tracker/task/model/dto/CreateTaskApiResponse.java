@@ -1,6 +1,7 @@
 package com.family_tasks.tracker.task.model.dto;
 
 import com.family_tasks.tracker.task.model.enums.Priority;
+import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,6 +18,7 @@ public class CreateTaskApiResponse {
 
     private final String taskId;
     private final String name;
+    private final TaskStatus status;
     private final String description;
     private final Priority priority;
     private final String reporterId;

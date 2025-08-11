@@ -1,28 +1,37 @@
 package com.family_tasks.tracker.task.core;
 
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
-import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
-import com.family_tasks.tracker.task.model.dto.CreateTaskApiResponse;
+import com.family_tasks.tracker.task.model.dto.UpdateTaskApiRequest;
+import com.family_tasks.tracker.task.model.dto.UpdateTaskApiResponse;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
+import com.family_tasks.tracker.task.model.enums.Priority;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
-public class CreateTaskService {
-
-    private final TaskFactory taskFactory;
+public class UpdateTaskService {
     private final TaskRepository taskRepository;
 
-    public CreateTaskApiResponse createTask(CreateTaskApiRequest apiRequest) {
+    public UpdateTaskApiResponse updateTask(String taskId, UpdateTaskApiRequest apiRequest) {
         //TODO: validate users existence
-        TaskEntity taskEntity = taskFactory.createTask(apiRequest);
-        taskRepository.saveTask(taskEntity);
+        TaskEntity taskEntity = taskRepository.getTask(taskId);
+        taskEntity.setName(apiRequest.getName());
+        taskEntity.setDescription(apiRequest.getDescription());
+        taskEntity.setPriority(Priority.valueOf(apiRequest.getPriority()));
+        taskEntity.setExecutorId(apiRequest.getExecutorId());
+        taskEntity.setConfidential(apiRequest.isConfidential());
+        taskEntity.setSharedWith(apiRequest.getSharedWith());
+        taskEntity.setDeadline(apiRequest.getDeadline());
+        taskEntity.setUpdatedAt(LocalDateTime.now());
+
         return toResponse(taskEntity);
     }
 
-    private CreateTaskApiResponse toResponse(TaskEntity taskEntity) {
-        return CreateTaskApiResponse.builder()
+    private UpdateTaskApiResponse toResponse(TaskEntity taskEntity) {
+        return UpdateTaskApiResponse.builder()
                 .taskId(taskEntity.getTaskId())
                 .status(taskEntity.getStatus())
                 .name(taskEntity.getName())

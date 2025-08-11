@@ -3,6 +3,7 @@ package com.family_tasks.tracker.task.core;
 import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.task.model.enums.Priority;
+import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ public class TaskFactoryTest {
         TaskEntity taskEntity = taskFactory.createTask(apiRequest);
         assertThat(taskEntity).isNotNull();
         assertThat(taskEntity.getTaskId()).isNotNull();
+        assertThat(taskEntity.getStatus()).isEqualTo(TaskStatus.TO_DO);
         assertThat(taskEntity.getName()).isEqualTo(apiRequest.getName());
         assertThat(taskEntity.getDescription()).isEqualTo(apiRequest.getDescription());
         assertThat(taskEntity.getPriority().name()).isEqualTo(apiRequest.getPriority());
