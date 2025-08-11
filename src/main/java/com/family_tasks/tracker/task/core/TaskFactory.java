@@ -3,6 +3,7 @@ package com.family_tasks.tracker.task.core;
 import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.task.model.enums.Priority;
+import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ public class TaskFactory {
         String id = UUID.randomUUID().toString();
         TaskEntity entity = TaskEntity.builder()
                 .taskId(id)
+                .status(TaskStatus.TO_DO)
                 .name(request.getName())
                 .description(request.getDescription())
                 .priority(Priority.valueOf(request.getPriority()))
