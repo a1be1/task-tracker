@@ -4,6 +4,7 @@ import com.family_tasks.tracker.task.model.enums.Priority;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ public class UpdateTaskApiResponse {
     private final String executorId;
     private final boolean confidential;
     private final Set<String> sharedWith;
-    private final LocalDateTime deadline;
+    private final LocalDate deadline;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 }

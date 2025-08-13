@@ -26,7 +26,7 @@ public class TaskFactory {
                 .priority(Priority.valueOf(request.getPriority()))
                 .reporterId(request.getReporterId())
                 .executorId(request.getExecutorId())
-                .confidential(request.isConfidential())
+                .confidential(request.getConfidential())
                 .sharedWith(request.getSharedWith())
                 .deadline(request.getDeadline())
                 .createdAt(LocalDateTime.now())

@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class CreateTaskApiResponse {
     private final String executorId;
     private final boolean confidential;
     private final Set<String> sharedWith;
-    private final LocalDateTime deadline;
+    private final LocalDate deadline;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 }

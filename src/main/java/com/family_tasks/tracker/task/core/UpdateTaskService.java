@@ -22,7 +22,7 @@ public class UpdateTaskService {
         taskEntity.setDescription(apiRequest.getDescription());
         taskEntity.setPriority(Priority.valueOf(apiRequest.getPriority()));
         taskEntity.setExecutorId(apiRequest.getExecutorId());
-        taskEntity.setConfidential(apiRequest.isConfidential());
+        taskEntity.setConfidential(apiRequest.getConfidential());
         taskEntity.setSharedWith(apiRequest.getSharedWith());
         taskEntity.setDeadline(apiRequest.getDeadline());
         taskEntity.setUpdatedAt(LocalDateTime.now());

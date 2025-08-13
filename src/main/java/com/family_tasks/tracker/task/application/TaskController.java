@@ -6,9 +6,12 @@ import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
 import com.family_tasks.tracker.task.model.dto.CreateTaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.UpdateTaskApiRequest;
 import com.family_tasks.tracker.task.model.dto.UpdateTaskApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 public class TaskController {
@@ -18,15 +21,13 @@ public class TaskController {
     private final CreateTaskService createTaskService;
     private final UpdateTaskService updateTaskService;
 
-    //TODO: implement validations
     @PostMapping(TASK_URL)
-    public CreateTaskApiResponse createTask(@RequestBody CreateTaskApiRequest apiRequest) {
+    public CreateTaskApiResponse createTask(@Valid @RequestBody CreateTaskApiRequest apiRequest) {
         return createTaskService.createTask(apiRequest);
     }
 
-    //TODO: implement validations
     @PutMapping(TASK_URL + "/{taskId}")
-    public UpdateTaskApiResponse updateTask(@PathVariable String taskId, @RequestBody UpdateTaskApiRequest apiRequest) {
+    public UpdateTaskApiResponse updateTask(@PathVariable String taskId, @Valid @RequestBody UpdateTaskApiRequest apiRequest) {
         return updateTaskService.updateTask(taskId, apiRequest);
     }
 }
