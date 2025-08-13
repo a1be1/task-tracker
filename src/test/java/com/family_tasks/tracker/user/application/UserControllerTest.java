@@ -77,6 +77,7 @@ class UserControllerTest extends AbstractApplicationTest {
     void emptyIsAdmin_createUser() {
         //prepare
         CreateUserApiRequest request = CreateUserApiRequest.builder()
+                .name("name")
                 .admin(null)
                 .build();
         //execute
@@ -85,7 +86,7 @@ class UserControllerTest extends AbstractApplicationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(ValidationMessage.USER_NAME_NOT_SPECIFIED);
+        assertThat(response.errorMessage()).isEqualTo(ValidationMessage.IS_ADMIN_NOT_SPECIFIED);
     }
 
     private CreateUserApiRequest buildRequest() {
