@@ -2,14 +2,16 @@ package com.family_tasks.tracker.user.core;
 
 import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
+import com.family_tasks.tracker.user.model.mapper.UserMapper;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserFactoryTest {
 
-    private final UserFactory userFactory = new UserFactory();
+    private final UserMapper mapper = Mappers.getMapper(UserMapper.class);
+    private final UserFactory userFactory = new UserFactory(mapper);
 
     @Test
     void createUser() {
