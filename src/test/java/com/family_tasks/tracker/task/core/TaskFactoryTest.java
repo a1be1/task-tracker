@@ -6,6 +6,7 @@ import com.family_tasks.tracker.task.model.enums.Priority;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -25,7 +26,7 @@ public class TaskFactoryTest {
                 .executorId(UUID.randomUUID().toString())
                 .confidential(true)
                 .sharedWith(Set.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()))
-                .deadline(LocalDateTime.now())
+                .deadline(LocalDate.now().plusDays(1))
                 .build();
 
         TaskEntity taskEntity = taskFactory.createTask(apiRequest);
@@ -37,7 +38,7 @@ public class TaskFactoryTest {
         assertThat(taskEntity.getPriority().name()).isEqualTo(apiRequest.getPriority());
         assertThat(taskEntity.getReporterId()).isEqualTo(apiRequest.getReporterId());
         assertThat(taskEntity.getExecutorId()).isEqualTo(apiRequest.getExecutorId());
-        assertThat(taskEntity.isConfidential()).isEqualTo(apiRequest.isConfidential());
+        assertThat(taskEntity.isConfidential()).isEqualTo(apiRequest.getConfidential());
         assertThat(taskEntity.getSharedWith()).isEqualTo(apiRequest.getSharedWith());
         assertThat(taskEntity.getDeadline()).isEqualTo(apiRequest.getDeadline());
     }
