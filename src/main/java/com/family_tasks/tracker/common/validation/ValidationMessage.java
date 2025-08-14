@@ -15,7 +15,7 @@ public interface ValidationMessage {
     String TASK_DEADLINE_DATE_NOT_FUTURE = "Date must be in future";
     String TASK_PRIORITY_INVALID = "Invalid priority value. Please enter a valid priority.";
     String TASK_STATUS_INVALID = "Invalid status value. Please enter a valid status.";
-    String TASK_STATUS_NULL = "Status must not be null";
-    String TASK_PRIORITY_NULL = "Priority cannot be null";
+    String TASK_STATUS_NULL = "Status must be specified";
+    String TASK_PRIORITY_NULL = "Priority must be specified";
     String TASK_REPORTER_NULL = "Reporter must be required";
 }

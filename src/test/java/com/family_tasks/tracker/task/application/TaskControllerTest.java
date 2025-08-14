@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.family_tasks.tracker.common.validation.ValidationConstants.*;
 import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 import static com.family_tasks.tracker.task.application.TaskController.TASK_URL;
 import static com.family_tasks.tracker.utils.TestUtils.randomString;
@@ -77,6 +78,36 @@ public class TaskControllerTest extends AbstractApplicationTest {
     }
 
     @Test
+    void whenPriorityNull_createTask() {
+        //prepare
+        CreateTaskApiRequest request = buildCreateRequest()
+                .priority(null)
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(TASK_PRIORITY_NULL);
+    }
+
+    @Test
+    void whenPriorityEmpty_createTask() {
+        //prepare
+        CreateTaskApiRequest request = buildCreateRequest()
+                .priority("")
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(TASK_PRIORITY_NULL);
+    }
+
+    @Test
     void whenEmptyTaskName_createTask() {
         //prepare
         CreateTaskApiRequest request = buildCreateRequest()
@@ -94,7 +125,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
     @Test
     void whenTaskNameToLong_createTask() {
         CreateTaskApiRequest request = buildCreateRequest()
-                .name(randomString(101))
+                .name(randomString(TASK_NAME_MAX_LENGTH + 1))
                 .build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
@@ -108,7 +139,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
     @Test
     void whenTaskDescriptionToLong_createTask() {
         CreateTaskApiRequest request = buildCreateRequest()
-                .description(randomString(251))
+                .description(randomString(TASK_DESCRIPTION_MAX_LENGTH + 1))
                 .build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
@@ -122,7 +153,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
     @Test
     void whenTaskDescriptionToShort_createTask() {
         CreateTaskApiRequest request = buildCreateRequest()
-                .description(randomString(9))
+                .description(randomString(TASK_DESCRIPTION_MIN_LENGTH - 1))
                 .build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
@@ -239,6 +270,24 @@ public class TaskControllerTest extends AbstractApplicationTest {
     }
 
     @Test
+    void whenPriorityEmpty_updateTask() {
+        //prepare
+        TaskEntity taskEntity = buildTaskEntity();
+        taskRepository.saveTask(taskEntity);
+        String taskId = taskEntity.getTaskId();
+        UpdateTaskApiRequest request = buildUpdateRequest()
+                .priority("")
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(TASK_PRIORITY_NULL);
+    }
+
+    @Test
     void whenEmptyTaskName_updateTask() {
         //prepare
         TaskEntity taskEntity = buildTaskEntity();
@@ -280,7 +329,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         taskRepository.saveTask(taskEntity);
         String taskId = taskEntity.getTaskId();
         UpdateTaskApiRequest request = buildUpdateRequest()
-                .name(randomString(101))
+                .name(randomString(TASK_NAME_MAX_LENGTH + 1))
                 .build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
@@ -297,7 +346,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         taskRepository.saveTask(taskEntity);
         String taskId = taskEntity.getTaskId();
         UpdateTaskApiRequest request = buildUpdateRequest()
-                .description(randomString(251))
+                .description(randomString(TASK_DESCRIPTION_MAX_LENGTH + 1))
                 .build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
@@ -314,7 +363,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         taskRepository.saveTask(taskEntity);
         String taskId = taskEntity.getTaskId();
         UpdateTaskApiRequest request = buildUpdateRequest()
-                .description(randomString(9))
+                .description(randomString(TASK_DESCRIPTION_MIN_LENGTH - 1))
                 .build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
@@ -369,6 +418,24 @@ public class TaskControllerTest extends AbstractApplicationTest {
         String taskId = taskEntity.getTaskId();
         UpdateTaskApiRequest request = buildUpdateRequest()
                 .status(null)
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(TASK_STATUS_NULL);
+    }
+
+    @Test
+    void whenStatusEmpty_updateTask() {
+        //prepare
+        TaskEntity taskEntity = buildTaskEntity();
+        taskRepository.saveTask(taskEntity);
+        String taskId = taskEntity.getTaskId();
+        UpdateTaskApiRequest request = buildUpdateRequest()
+                .status("")
                 .build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);

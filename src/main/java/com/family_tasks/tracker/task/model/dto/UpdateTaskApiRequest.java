@@ -23,7 +23,7 @@ import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 @EqualsAndHashCode
 public class UpdateTaskApiRequest {
     @ValidTaskStatus
-    @NotNull(message = TASK_STATUS_NULL)
+    @NotEmpty(message = TASK_STATUS_NULL)
     private final String status;
     @Size(max = TASK_NAME_MAX_LENGTH, message = TASK_NAME_TOO_LONG)
     @NotEmpty(message = TASK_NAME_NOT_SPECIFIED)
@@ -32,7 +32,7 @@ public class UpdateTaskApiRequest {
     @Size(min = TASK_DESCRIPTION_MIN_LENGTH, message = TASK_DESCRIPTION_TOO_SHORT)
     private final String description;
     @ValidTaskPriority
-    @NotNull(message = TASK_PRIORITY_NULL)
+    @NotEmpty(message = TASK_PRIORITY_NULL)
     private final String priority;
     private final String executorId;
     @NotNull(message = TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED)

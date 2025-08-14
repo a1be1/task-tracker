@@ -25,6 +25,7 @@ public class CreateTaskApiRequest {
     @Size(min = TASK_DESCRIPTION_MIN_LENGTH, message = TASK_DESCRIPTION_TOO_SHORT)
     private final String description;
     @ValidTaskPriority
+    @NotEmpty(message = TASK_PRIORITY_NULL)
     private final String priority;
     @NotNull(message = TASK_REPORTER_NULL)
     private final String reporterId;

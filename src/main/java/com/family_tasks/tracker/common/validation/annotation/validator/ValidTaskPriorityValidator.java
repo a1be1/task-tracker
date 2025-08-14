@@ -4,6 +4,7 @@ import com.family_tasks.tracker.common.validation.annotation.ValidTaskPriority;
 import com.family_tasks.tracker.task.model.enums.Priority;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -17,6 +18,10 @@ public class ValidTaskPriorityValidator implements ConstraintValidator<ValidTask
 
     @Override
     public boolean isValid(String string, ConstraintValidatorContext constraintValidatorContext) {
-        return VALID_PRIORITIES.contains(string);
+        return isEmpty(string) || VALID_PRIORITIES.contains(string);
+    }
+
+    private boolean isEmpty(String string) {
+        return !StringUtils.hasText(string);
     }
 }

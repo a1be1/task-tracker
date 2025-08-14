@@ -4,6 +4,7 @@ import com.family_tasks.tracker.common.validation.annotation.ValidTaskStatus;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -17,6 +18,10 @@ public class ValidTaskStatusValidator implements ConstraintValidator<ValidTaskSt
 
     @Override
     public boolean isValid(String string, ConstraintValidatorContext constraintValidatorContext) {
-        return VALID_STATUSES.contains(string);
+        return isEmpty(string) || VALID_STATUSES.contains(string);
+    }
+
+    private boolean isEmpty(String string) {
+        return !StringUtils.hasText(string);
     }
 }
