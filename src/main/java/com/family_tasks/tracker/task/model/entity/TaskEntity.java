@@ -22,7 +22,8 @@ public class TaskEntity {
     private String reporterId;
     private String executorId;
     private boolean confidential;
-    private Set<String> sharedWith;
+    @Builder.Default
+    private Set<String> sharedWith = Set.of();
     private LocalDate deadline;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

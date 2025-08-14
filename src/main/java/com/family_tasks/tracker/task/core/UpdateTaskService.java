@@ -1,8 +1,8 @@
 package com.family_tasks.tracker.task.core;
 
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
+import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.UpdateTaskApiRequest;
-import com.family_tasks.tracker.task.model.dto.UpdateTaskApiResponse;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.task.model.enums.Priority;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class UpdateTaskService {
     private final TaskRepository taskRepository;
 
-    public UpdateTaskApiResponse updateTask(String taskId, UpdateTaskApiRequest apiRequest) {
+    public TaskApiResponse updateTask(String taskId, UpdateTaskApiRequest apiRequest) {
         //TODO: validate users existence
         TaskEntity taskEntity = taskRepository.getTask(taskId);
         taskEntity.setName(apiRequest.getName());
@@ -30,8 +30,8 @@ public class UpdateTaskService {
         return toResponse(taskEntity);
     }
 
-    private UpdateTaskApiResponse toResponse(TaskEntity taskEntity) {
-        return UpdateTaskApiResponse.builder()
+    private TaskApiResponse toResponse(TaskEntity taskEntity) {
+        return TaskApiResponse.builder()
                 .taskId(taskEntity.getTaskId())
                 .status(taskEntity.getStatus())
                 .name(taskEntity.getName())

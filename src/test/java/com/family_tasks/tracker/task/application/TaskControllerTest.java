@@ -5,10 +5,9 @@ import com.family_tasks.tracker.common.error.ErrorResponse;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
 import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest.CreateTaskApiRequestBuilder;
-import com.family_tasks.tracker.task.model.dto.CreateTaskApiResponse;
+import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.UpdateTaskApiRequest;
 import com.family_tasks.tracker.task.model.dto.UpdateTaskApiRequest.UpdateTaskApiRequestBuilder;
-import com.family_tasks.tracker.task.model.dto.UpdateTaskApiResponse;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.task.model.enums.Priority;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
@@ -42,10 +41,10 @@ public class TaskControllerTest extends AbstractApplicationTest {
         //prepare
         CreateTaskApiRequest request = buildCreateRequest().build();
         //execute
-        ResponseEntity<CreateTaskApiResponse> responseEntity = client.postForEntity(TASK_URL, request, CreateTaskApiResponse.class);
+        ResponseEntity<TaskApiResponse> responseEntity = client.postForEntity(TASK_URL, request, TaskApiResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        CreateTaskApiResponse response = responseEntity.getBody();
+        TaskApiResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.getTaskId()).isNotNull();
         assertThat(response.getStatus()).isEqualTo(TaskStatus.TO_DO);
@@ -103,7 +102,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_NAME_TO_LONG);
+        assertThat(response.errorMessage()).isEqualTo(TASK_NAME_TOO_LONG);
     }
 
     @Test
@@ -117,7 +116,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TO_LONG);
+        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TOO_LONG);
     }
 
     @Test
@@ -131,7 +130,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TO_SHORT);
+        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TOO_SHORT);
     }
 
     @Test
@@ -164,6 +163,21 @@ public class TaskControllerTest extends AbstractApplicationTest {
         assertThat(response.errorMessage()).isEqualTo(TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED);
     }
 
+    @Test
+    void whenTaskReporterIdNull_createTask() {
+        //prepare
+        CreateTaskApiRequest request = buildCreateRequest()
+                .reporterId(null)
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(TASK_REPORTER_NULL);
+    }
+
 
     @Test
     void updateTaskWhenTaskExist() {
@@ -173,10 +187,10 @@ public class TaskControllerTest extends AbstractApplicationTest {
         String taskId = taskEntity.getTaskId();
         UpdateTaskApiRequest request = buildUpdateRequest().build();
         //execute
-        ResponseEntity<UpdateTaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), UpdateTaskApiResponse.class);
+        ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), TaskApiResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        UpdateTaskApiResponse response = responseEntity.getBody();
+        TaskApiResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(TaskStatus.TO_DO);
         assertThat(response.getName()).isEqualTo(request.getName());
@@ -231,6 +245,24 @@ public class TaskControllerTest extends AbstractApplicationTest {
         taskRepository.saveTask(taskEntity);
         String taskId = taskEntity.getTaskId();
         UpdateTaskApiRequest request = buildUpdateRequest()
+                .name("")
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(TASK_NAME_NOT_SPECIFIED);
+    }
+
+    @Test
+    void whenTaskNameNull_updateTask() {
+        //prepare
+        TaskEntity taskEntity = buildTaskEntity();
+        taskRepository.saveTask(taskEntity);
+        String taskId = taskEntity.getTaskId();
+        UpdateTaskApiRequest request = buildUpdateRequest()
                 .name(null)
                 .build();
         //execute
@@ -256,7 +288,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_NAME_TO_LONG);
+        assertThat(response.errorMessage()).isEqualTo(TASK_NAME_TOO_LONG);
     }
 
     @Test
@@ -273,7 +305,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TO_LONG);
+        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TOO_LONG);
     }
 
     @Test
@@ -290,25 +322,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TO_SHORT);
-    }
-
-    @Test
-    void whenDeadlineDateInvalid_updateTask() {
-        //prepare
-        TaskEntity taskEntity = buildTaskEntity();
-        taskRepository.saveTask(taskEntity);
-        String taskId = taskEntity.getTaskId();
-        UpdateTaskApiRequest request = buildUpdateRequest()
-                .deadline(LocalDate.now())
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DEADLINE_DATE_NOT_FUTURE);
+        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TOO_SHORT);
     }
 
     @Test

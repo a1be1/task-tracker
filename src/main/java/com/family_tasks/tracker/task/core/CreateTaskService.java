@@ -2,7 +2,7 @@ package com.family_tasks.tracker.task.core;
 
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
-import com.family_tasks.tracker.task.model.dto.CreateTaskApiResponse;
+import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,15 +14,15 @@ public class CreateTaskService {
     private final TaskFactory taskFactory;
     private final TaskRepository taskRepository;
 
-    public CreateTaskApiResponse createTask(CreateTaskApiRequest apiRequest) {
+    public TaskApiResponse createTask(CreateTaskApiRequest apiRequest) {
         //TODO: validate users existence
         TaskEntity taskEntity = taskFactory.createTask(apiRequest);
         taskRepository.saveTask(taskEntity);
         return toResponse(taskEntity);
     }
 
-    private CreateTaskApiResponse toResponse(TaskEntity taskEntity) {
-        return CreateTaskApiResponse.builder()
+    private TaskApiResponse toResponse(TaskEntity taskEntity) {
+        return TaskApiResponse.builder()
                 .taskId(taskEntity.getTaskId())
                 .status(taskEntity.getStatus())
                 .name(taskEntity.getName())
