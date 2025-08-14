@@ -96,7 +96,6 @@
                         <arg>-Amapstruct.unmappedTargetPolicy=ERROR</arg>
                         <arg>-Amapstruct.defaultComponentModel=spring</arg>
                     </compilerArgs>
-
                 </configuration>
             </plugin>
             <plugin>
