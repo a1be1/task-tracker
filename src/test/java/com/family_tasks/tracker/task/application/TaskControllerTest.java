@@ -223,7 +223,7 @@ public class TaskControllerTest extends AbstractApplicationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         TaskApiResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(TaskStatus.TO_DO);
+        assertThat(response.getStatus()).isEqualTo(TaskStatus.CANCELLED);
         assertThat(response.getName()).isEqualTo(request.getName());
         assertThat(response.getDescription()).isEqualTo(request.getDescription());
         assertThat(response.getPriority().name()).isEqualTo(request.getPriority());

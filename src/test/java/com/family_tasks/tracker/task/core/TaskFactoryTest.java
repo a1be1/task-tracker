@@ -4,7 +4,9 @@ import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.task.model.enums.Priority;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
+import com.family_tasks.tracker.task.model.mupper.TaskCreateMapper;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,7 +16,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TaskFactoryTest {
-    private final TaskFactory taskFactory = new TaskFactory();
+    private final TaskCreateMapper mapper = Mappers.getMapper(TaskCreateMapper.class);
+    private final TaskFactory taskFactory = new TaskFactory(mapper);
 
     @Test
     void createTask() {
