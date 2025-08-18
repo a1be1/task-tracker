@@ -18,7 +18,7 @@ public class CreateUserService {
 
     public CreateUserApiResponse createUser(CreateUserApiRequest apiRequest) {
         UserEntity userEntity = userFactory.createUser(apiRequest);
-        userRepository.saveUser(userEntity);
+        userRepository.save(userEntity);
         return mapper.toResponse(userEntity);
     }
 }

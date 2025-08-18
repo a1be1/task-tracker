@@ -1,21 +1,29 @@
 package com.family_tasks.tracker.user.model.entity;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
+import com.family_tasks.tracker.common.TableNames;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Builder
-@ToString
-@EqualsAndHashCode
-public class UserEntity {
 
-    private final String id;
-    private final String name;
-    private final boolean admin;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+@Entity(name = TableNames.USERS_TABLE)
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+public class UserEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private String name;
+    private boolean admin;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

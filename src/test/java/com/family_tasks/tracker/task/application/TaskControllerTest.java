@@ -1,6 +1,6 @@
 package com.family_tasks.tracker.task.application;
 
-import com.family_tasks.tracker.AbstractApplicationTest;
+import com.family_tasks.tracker.AbstractIntegrationTest;
 import com.family_tasks.tracker.common.error.ErrorResponse;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link TaskController}
  */
-public class TaskControllerTest extends AbstractApplicationTest {
+public class TaskControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     TaskRepository taskRepository;

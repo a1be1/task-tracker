@@ -21,7 +21,7 @@ class UserFactoryTest {
                 .build();
 
         UserEntity userEntity = userFactory.createUser(apiRequest);
-        assertThat(userEntity.getId()).isNotNull();
+        assertThat(userEntity.getId()).isNull();
         assertThat(userEntity.getName()).isEqualTo(apiRequest.getName());
         assertThat(userEntity.isAdmin()).isTrue();
         assertThat(userEntity.getCreatedAt()).isNotNull();

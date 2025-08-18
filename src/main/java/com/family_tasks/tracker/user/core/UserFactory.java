@@ -16,7 +16,6 @@ public class UserFactory {
 
     public UserEntity createUser(CreateUserApiRequest request) {
         log.info("Creating a new user. Request: {}", request);
-        //TODO: consider generating ID by DB
         UserEntity entity = mapper.toEntity(request);
         log.info("Creating a new user. Result: {}", entity);
         return entity;
