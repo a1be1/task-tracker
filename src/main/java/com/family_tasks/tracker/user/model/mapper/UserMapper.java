@@ -13,7 +13,7 @@ public interface UserMapper {
     @Mapping(target = "userId", source = "id")
     CreateUserApiResponse toResponse(UserEntity entity);
 
-    @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID().toString())")
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
     UserEntity toEntity(CreateUserApiRequest request);

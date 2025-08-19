@@ -1,6 +1,6 @@
 package com.family_tasks.tracker.user.application;
 
-import com.family_tasks.tracker.AbstractApplicationTest;
+import com.family_tasks.tracker.AbstractIntegrationTest;
 import com.family_tasks.tracker.common.error.ErrorResponse;
 import com.family_tasks.tracker.common.validation.ValidationMessage;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link UserController}
  */
-class UserControllerTest extends AbstractApplicationTest {
+class UserControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
@@ -38,7 +38,7 @@ class UserControllerTest extends AbstractApplicationTest {
         assertThat(response.isAdmin()).isEqualTo(request.getAdmin());
 
         String userId = response.getUserId();
-        assertThat(userRepository.getUser(userId)).isNotNull();
+        assertThat(userRepository.findById(userId)).isNotNull();
     }
 
     @Test

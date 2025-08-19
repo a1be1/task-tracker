@@ -1,11 +1,9 @@
 package com.family_tasks.tracker.user.infrastructure;
 
 import com.family_tasks.tracker.user.model.entity.UserEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-//TODO: implement JPA
-public interface UserRepository {
-
-    void saveUser(UserEntity user);
-
-    UserEntity getUser(String userId);
+@Repository
+public interface UserRepository extends JpaRepository<UserEntity, String> {
 }
