@@ -2,7 +2,6 @@ package com.family_tasks.tracker.task.model.dto;
 
 import com.family_tasks.tracker.common.validation.annotation.ValidTaskPriority;
 import com.family_tasks.tracker.common.validation.annotation.ValidTaskStatus;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -21,7 +20,7 @@ import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 @Builder
 @ToString
 @EqualsAndHashCode
-public class UpdateTaskApiRequest {
+public class TaskUpdateApiRequest {
     @ValidTaskStatus
     @NotEmpty(message = TASK_STATUS_NULL)
     private final String status;
@@ -34,10 +33,9 @@ public class UpdateTaskApiRequest {
     @ValidTaskPriority
     @NotEmpty(message = TASK_PRIORITY_NULL)
     private final String priority;
-    private final String executorId;
+    @Builder.Default
+    private final Set<Integer> executorIds = Set.of();
     @NotNull(message = TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED)
     private final Boolean confidential;
-    @Builder.Default
-    private final Set<String> sharedWith = Set.of();
     private final LocalDate deadline;
 }

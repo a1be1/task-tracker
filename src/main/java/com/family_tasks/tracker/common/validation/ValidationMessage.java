@@ -7,6 +7,7 @@ public interface ValidationMessage {
     String USER_NAME_NOT_SPECIFIED = "A user name isn't specified.";
     String USER_NAME_TOO_LONG = "A user name length shouldn't be more than " + USER_NAME_MAX_LENGTH + ".";
     String IS_ADMIN_NOT_SPECIFIED = "A user admin flag isn't specified.";
+    String USER_NOT_EXIST = "User with id %s doesn't exist";
     String TASK_NAME_NOT_SPECIFIED = "A task name isn't specified.";
     String TASK_NAME_TOO_LONG = "A task name length shouldn't be more than " + TASK_NAME_MAX_LENGTH + ".";
     String TASK_DESCRIPTION_TOO_LONG = "A task description length shouldn't be more than " + TASK_DESCRIPTION_MAX_LENGTH + ".";
@@ -18,4 +19,5 @@ public interface ValidationMessage {
     String TASK_STATUS_NULL = "Status must be specified";
     String TASK_PRIORITY_NULL = "Priority must be specified";
     String TASK_REPORTER_NULL = "Reporter must be required";
+    String TASK_NOT_EXIST = "Task with id %s doesn't exist";
 }
