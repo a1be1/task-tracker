@@ -10,7 +10,7 @@ import org.mapstruct.NullValueMappingStrategy;
 
 @Mapper(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface TaskUpdateMapper {
-
+    @Mapping(target = "taskId", source = "id")
     TaskApiResponse toResponse(TaskEntity entity);
 
     @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")

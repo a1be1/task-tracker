@@ -17,7 +17,7 @@ import java.util.Set;
 @EqualsAndHashCode
 public class TaskApiResponse {
 
-    private final String id;
+    private final String taskId;
     private final String name;
     private final TaskStatus status;
     private final String description;

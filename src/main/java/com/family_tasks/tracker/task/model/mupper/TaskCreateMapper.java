@@ -9,7 +9,7 @@ import org.mapstruct.NullValueMappingStrategy;
 
 @Mapper(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface TaskCreateMapper {
-
+@Mapping(target = "taskId",source = "id")
     TaskApiResponse toResponse(TaskEntity entity);
 
     @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID().toString())")
