@@ -11,7 +11,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class CreateUserApiResponse {
 
-    private final String userId;
+    private final Integer userId;
     private final String name;
     private final boolean admin;
 }

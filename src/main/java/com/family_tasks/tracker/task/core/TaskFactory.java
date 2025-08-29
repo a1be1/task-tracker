@@ -1,6 +1,6 @@
 package com.family_tasks.tracker.task.core;
 
-import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
+import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.task.model.mupper.TaskCreateMapper;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +14,8 @@ public class TaskFactory {
 
     private final TaskCreateMapper mapper;
 
-    public TaskEntity createTask(CreateTaskApiRequest request) {
+    public TaskEntity createTask(TaskCreateApiRequest request) {
         log.info("Creating a new task. Request: {}", request);
-        //TODO: consider generating ID by DB
         TaskEntity entity = mapper.toEntity(request);
         log.info("Creating a new task. Result: {}", entity);
         return entity;

@@ -1,6 +1,6 @@
 package com.family_tasks.tracker.task.core;
 
-import com.family_tasks.tracker.task.model.dto.CreateTaskApiRequest;
+import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.task.model.enums.Priority;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
@@ -9,9 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,28 +19,28 @@ public class TaskFactoryTest {
 
     @Test
     void createTask() {
-        CreateTaskApiRequest apiRequest = CreateTaskApiRequest.builder()
+        //prepare
+        TaskCreateApiRequest apiRequest = TaskCreateApiRequest.builder()
                 .name("Name of task")
                 .description("Description of task")
                 .priority(String.valueOf(Priority.HIGH))
-                .reporterId(UUID.randomUUID().toString())
-                .executorId(UUID.randomUUID().toString())
+                .reporterId(1)
                 .confidential(true)
-                .sharedWith(Set.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()))
+                .executorIds(Set.of(1, 2, 3, 4, 5))
                 .deadline(LocalDate.now().plusDays(1))
                 .build();
-
+        //execute
         TaskEntity taskEntity = taskFactory.createTask(apiRequest);
+        //validate
         assertThat(taskEntity).isNotNull();
-        assertThat(taskEntity.getTaskId()).isNotNull();
+        assertThat(taskEntity.getId()).isNotNull();
         assertThat(taskEntity.getStatus()).isEqualTo(TaskStatus.TO_DO);
         assertThat(taskEntity.getName()).isEqualTo(apiRequest.getName());
         assertThat(taskEntity.getDescription()).isEqualTo(apiRequest.getDescription());
         assertThat(taskEntity.getPriority().name()).isEqualTo(apiRequest.getPriority());
         assertThat(taskEntity.getReporterId()).isEqualTo(apiRequest.getReporterId());
-        assertThat(taskEntity.getExecutorId()).isEqualTo(apiRequest.getExecutorId());
+        assertThat(taskEntity.getExecutorIds()).isEqualTo(apiRequest.getExecutorIds());
         assertThat(taskEntity.isConfidential()).isEqualTo(apiRequest.getConfidential());
-        assertThat(taskEntity.getSharedWith()).isEqualTo(apiRequest.getSharedWith());
         assertThat(taskEntity.getDeadline()).isEqualTo(apiRequest.getDeadline());
     }
 }

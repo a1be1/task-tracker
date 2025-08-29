@@ -37,7 +37,7 @@ class UserControllerTest extends AbstractIntegrationTest {
         assertThat(response.getName()).isEqualTo(request.getName());
         assertThat(response.isAdmin()).isEqualTo(request.getAdmin());
 
-        String userId = response.getUserId();
+        Integer userId = response.getUserId();
         assertThat(userRepository.findById(userId)).isNotNull();
     }
 

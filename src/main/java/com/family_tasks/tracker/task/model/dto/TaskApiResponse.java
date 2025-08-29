@@ -22,10 +22,9 @@ public class TaskApiResponse {
     private final TaskStatus status;
     private final String description;
     private final Priority priority;
-    private final String reporterId;
-    private final String executorId;
+    private final Integer reporterId;
+    private final Set<Integer> executorIds;
     private final boolean confidential;
-    private final Set<String> sharedWith;
     private final LocalDate deadline;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;

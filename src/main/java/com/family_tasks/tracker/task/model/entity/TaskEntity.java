@@ -1,29 +1,42 @@
 package com.family_tasks.tracker.task.model.entity;
 
+import com.family_tasks.tracker.common.TableNames;
 import com.family_tasks.tracker.task.model.enums.Priority;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
-import lombok.*;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
+import static com.family_tasks.tracker.common.TableNames.EXECUTORS_TASKS_TABLE;
+
+@Entity(name = TableNames.TASKS_TABLE)
 @Setter
 @Getter
-@Builder
 @ToString
-@EqualsAndHashCode
+@NoArgsConstructor
 public class TaskEntity {
-    private String taskId;
+    @Id
+    private String id;
     private TaskStatus status;
     private String name;
     private String description;
     private Priority priority;
-    private String reporterId;
-    private String executorId;
+    private Integer reporterId;
+    @ElementCollection
+    @CollectionTable(
+            name = EXECUTORS_TASKS_TABLE,
+            joinColumns = @JoinColumn(name = "task_id")
+    )
+    @Column(name = "user_id")
+    private Set<Integer> executorIds = new HashSet<>();
     private boolean confidential;
-    @Builder.Default
-    private Set<String> sharedWith = Set.of();
     private LocalDate deadline;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
