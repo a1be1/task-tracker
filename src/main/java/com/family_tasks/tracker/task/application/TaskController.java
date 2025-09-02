@@ -1,9 +1,11 @@
 package com.family_tasks.tracker.task.application;
 
 import com.family_tasks.tracker.task.core.TaskCreateService;
+import com.family_tasks.tracker.task.core.TaskGetService;
 import com.family_tasks.tracker.task.core.TaskUpdateService;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
+import com.family_tasks.tracker.task.model.dto.TaskGetApiRequest;
 import com.family_tasks.tracker.task.model.dto.TaskUpdateApiRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class TaskController {
 
     private final TaskCreateService taskCreateService;
     private final TaskUpdateService taskUpdateService;
+    private final TaskGetService taskGetService;
 
     @PostMapping(TASK_URL)
     public TaskApiResponse createTask(@Valid @RequestBody TaskCreateApiRequest apiRequest) {
@@ -30,5 +33,10 @@ public class TaskController {
     @PutMapping(TASK_URL + "/{taskId}")
     public TaskApiResponse updateTask(@PathVariable String taskId, @Valid @RequestBody TaskUpdateApiRequest apiRequest) {
         return taskUpdateService.updateTask(taskId, apiRequest);
+    }
+
+    @GetMapping(TASK_URL + "/{taskId}")
+    public TaskApiResponse getTask(@PathVariable String taskId, @Valid @RequestBody TaskGetApiRequest apiRequest) throws IllegalAccessException {
+        return taskGetService.getTask(taskId, apiRequest);
     }
 }

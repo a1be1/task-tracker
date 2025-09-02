@@ -39,4 +39,13 @@ public class ExceptionAdvice {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(errorMessage));
     }
+
+    @ExceptionHandler(IllegalAccessException.class)
+    public ResponseEntity<ErrorResponse> IllegalAccessException(IllegalAccessException e) {
+        log.error("Exception: ", e);
+        String errorMessage = e.getMessage();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(errorMessage));
+    }
 }
