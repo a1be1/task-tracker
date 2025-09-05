@@ -5,14 +5,14 @@ import com.family_tasks.tracker.task.core.TaskGetService;
 import com.family_tasks.tracker.task.core.TaskUpdateService;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
-import com.family_tasks.tracker.task.model.dto.TaskGetApiRequest;
 import com.family_tasks.tracker.task.model.dto.TaskUpdateApiRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
 
 @Validated
 @RestController
@@ -36,7 +36,11 @@ public class TaskController {
     }
 
     @GetMapping(TASK_URL + "/{taskId}")
-    public TaskApiResponse getTask(@PathVariable String taskId, @Valid @RequestBody TaskGetApiRequest apiRequest) throws IllegalAccessException {
-        return taskGetService.getTask(taskId, apiRequest);
+
+    public TaskApiResponse getTask(@PathVariable String taskId,
+                                   @NotNull(message = USER_NOT_SPECIFIED)
+                                   @RequestParam(name = "userId", required = false)
+                                   Integer userId) throws IllegalAccessException {
+        return taskGetService.getTask(taskId, userId);
     }
 }

@@ -5,7 +5,6 @@ import com.family_tasks.tracker.common.error.ErrorResponse;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
-import com.family_tasks.tracker.task.model.dto.TaskGetApiRequest;
 import com.family_tasks.tracker.task.model.dto.TaskUpdateApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.task.model.enums.Priority;
@@ -18,6 +17,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -214,7 +214,7 @@ public class TaskControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskReporterNotExist_createTask() {
         //prepare
-        Integer reporterId = getUserId() + 2;
+        Integer reporterId = createUser() + 2;
         TaskCreateApiRequest request = buildCreateRequest()
                 .reporterId(reporterId)
                 .build();
@@ -230,7 +230,7 @@ public class TaskControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskExecutorNotExist_createTask() {
         //prepare
-        Integer executorId = getUserId() + 2;
+        Integer executorId = createUser() + 2;
         TaskCreateApiRequest request = buildCreateRequest()
                 .executorIds(Set.of(executorId))
                 .build();
@@ -500,7 +500,7 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         TaskEntity taskEntity = buildTaskEntity();
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
-        Integer executorId = getUserId() + 1;
+        Integer executorId = createUser() + 1;
         TaskUpdateApiRequest request = buildUpdateRequest()
                 .executorIds(Set.of(executorId))
                 .status("")
@@ -521,22 +521,16 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         Integer userId = taskEntity.getReporterId();
-        TaskGetApiRequest request = TaskGetApiRequest.builder()
-                .userId(userId)
-                .build();
+        String url = UriComponentsBuilder
+                .fromUriString(TaskController.TASK_URL + "/" + taskId)
+                .queryParam("userId", userId)
+                .toUriString();
         //execute
-        ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.GET, new HttpEntity<>(request), TaskApiResponse.class);
+        ResponseEntity<TaskApiResponse> responseEntity = client.getForEntity(url, TaskApiResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         TaskApiResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(taskEntity.getStatus());
-        assertThat(response.getName()).isEqualTo(taskEntity.getName());
-        assertThat(response.getDescription()).isEqualTo(taskEntity.getDescription());
-        assertThat(response.getPriority()).isEqualTo(taskEntity.getPriority());
-        assertThat(response.getExecutorIds()).isEqualTo(taskEntity.getExecutorIds());
-        assertThat(response.isConfidential()).isEqualTo(taskEntity.isConfidential());
-        assertThat(response.getDeadline()).isEqualTo(taskEntity.getDeadline());
+        compareTaskApiResponseWithTaskEntity(response, taskEntity);
     }
 
     @Test
@@ -547,22 +541,16 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         Integer userId = taskEntity.getReporterId();
-        TaskGetApiRequest request = TaskGetApiRequest.builder()
-                .userId(userId)
-                .build();
+        String url = UriComponentsBuilder
+                .fromUriString(TaskController.TASK_URL + "/" + taskId)
+                .queryParam("userId", userId)
+                .toUriString();
         //execute
-        ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.GET, new HttpEntity<>(request), TaskApiResponse.class);
+        ResponseEntity<TaskApiResponse> responseEntity = client.getForEntity(url, TaskApiResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         TaskApiResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(taskEntity.getStatus());
-        assertThat(response.getName()).isEqualTo(taskEntity.getName());
-        assertThat(response.getDescription()).isEqualTo(taskEntity.getDescription());
-        assertThat(response.getPriority()).isEqualTo(taskEntity.getPriority());
-        assertThat(response.getExecutorIds()).isEqualTo(taskEntity.getExecutorIds());
-        assertThat(response.isConfidential()).isEqualTo(taskEntity.isConfidential());
-        assertThat(response.getDeadline()).isEqualTo(taskEntity.getDeadline());
+        compareTaskApiResponseWithTaskEntity(response, taskEntity);
     }
 
     @Test
@@ -570,26 +558,20 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         //prepare
         TaskEntity taskEntity = buildTaskEntity();
         taskEntity.setConfidential(true);
-        Integer userId = getUserId();
+        Integer userId = createUser();
         taskEntity.setExecutorIds(Set.of(userId));
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
-        TaskGetApiRequest request = TaskGetApiRequest.builder()
-                .userId(userId)
-                .build();
+        String url = UriComponentsBuilder
+                .fromUriString(TaskController.TASK_URL + "/" + taskId)
+                .queryParam("userId", userId)
+                .toUriString();
         //execute
-        ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.GET, new HttpEntity<>(request), TaskApiResponse.class);
+        ResponseEntity<TaskApiResponse> responseEntity = client.getForEntity(url, TaskApiResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         TaskApiResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(taskEntity.getStatus());
-        assertThat(response.getName()).isEqualTo(taskEntity.getName());
-        assertThat(response.getDescription()).isEqualTo(taskEntity.getDescription());
-        assertThat(response.getPriority()).isEqualTo(taskEntity.getPriority());
-        assertThat(response.getExecutorIds()).isEqualTo(taskEntity.getExecutorIds());
-        assertThat(response.isConfidential()).isEqualTo(taskEntity.isConfidential());
-        assertThat(response.getDeadline()).isEqualTo(taskEntity.getDeadline());
+        compareTaskApiResponseWithTaskEntity(response, taskEntity);
     }
 
     @Test
@@ -597,16 +579,17 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         //prepare
         TaskEntity taskEntity = buildTaskEntity();
         taskEntity.setConfidential(true);
-        Integer userId = getUserId();
+        Integer userId = createUser();
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
-        TaskGetApiRequest request = TaskGetApiRequest.builder()
-                .userId(userId)
-                .build();
+        String url = UriComponentsBuilder
+                .fromUriString(TaskController.TASK_URL + "/" + taskId)
+                .queryParam("userId", userId)
+                .toUriString();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TASK_URL + "/" + taskId, HttpMethod.GET, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
         //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.errorMessage()).isEqualTo(DO_NOT_HAVE_PERMISSION_TO_VIEW_TASK);
@@ -618,12 +601,13 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         TaskEntity taskEntity = buildTaskEntity();
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
-        Integer userId = getUserId() + 2;
-        TaskGetApiRequest request = TaskGetApiRequest.builder()
-                .userId(userId)
-                .build();
+        Integer userId = createUser() + 2;
+        String url = UriComponentsBuilder
+                .fromUriString(TaskController.TASK_URL + "/" + taskId)
+                .queryParam("userId", userId)
+                .toUriString();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TASK_URL + "/" + taskId, HttpMethod.GET, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -637,11 +621,12 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         TaskEntity taskEntity = buildTaskEntity();
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
-        TaskGetApiRequest request = TaskGetApiRequest.builder()
-                .userId(null)
-                .build();
+        String url = UriComponentsBuilder
+                .fromUriString(TaskController.TASK_URL + "/" + taskId)
+                .queryParam("userId", "")
+                .toUriString();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TASK_URL + "/" + taskId, HttpMethod.GET, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -656,11 +641,12 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId() + 1;
         Integer userId = taskEntity.getReporterId();
-        TaskGetApiRequest request = TaskGetApiRequest.builder()
-                .userId(userId)
-                .build();
+        String url = UriComponentsBuilder
+                .fromUriString(TaskController.TASK_URL + "/" + taskId)
+                .queryParam("userId", userId)
+                .toUriString();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TASK_URL + "/" + taskId, HttpMethod.GET, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -673,13 +659,13 @@ public class TaskControllerTest extends AbstractIntegrationTest {
                 .name("Name of task")
                 .description("Description of task")
                 .priority(Priority.HIGH.name())
-                .reporterId(getUserId())
+                .reporterId(createUser())
                 .executorIds(Set.of())
                 .confidential(true)
                 .deadline(LocalDate.now().plusDays(1));
     }
 
-    private Integer getUserId() {
+    private Integer createUser() {
         UserEntity userEntity = new UserEntity();
         userEntity.setName("user name");
         userEntity.setAdmin(false);
@@ -707,7 +693,7 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         taskEntity.setName("Name of task");
         taskEntity.setDescription("Description of task");
         taskEntity.setPriority((Priority.HIGH));
-        taskEntity.setReporterId(getUserId());
+        taskEntity.setReporterId(createUser());
         taskEntity.setExecutorIds(Set.of());
         taskEntity.setConfidential(false);
         taskEntity.setDeadline(LocalDate.now().plusDays(1));
@@ -716,5 +702,16 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         taskEntity.setStatus(TaskStatus.TO_DO);
 
         return taskEntity;
+    }
+
+    private void compareTaskApiResponseWithTaskEntity(TaskApiResponse response, TaskEntity taskEntity) {
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(taskEntity.getStatus());
+        assertThat(response.getName()).isEqualTo(taskEntity.getName());
+        assertThat(response.getDescription()).isEqualTo(taskEntity.getDescription());
+        assertThat(response.getPriority()).isEqualTo(taskEntity.getPriority());
+        assertThat(response.getExecutorIds()).isEqualTo(taskEntity.getExecutorIds());
+        assertThat(response.isConfidential()).isEqualTo(taskEntity.isConfidential());
+        assertThat(response.getDeadline()).isEqualTo(taskEntity.getDeadline());
     }
 }
