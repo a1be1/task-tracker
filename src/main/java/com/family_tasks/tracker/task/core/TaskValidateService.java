@@ -1,5 +1,6 @@
 package com.family_tasks.tracker.task.core;
 
+import com.family_tasks.tracker.common.error.exception.NotFoundException;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
 import com.family_tasks.tracker.task.model.dto.TaskUpdateApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
@@ -10,7 +11,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_EXIST;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
 
 @Service
 public class TaskValidateService {
@@ -38,14 +40,14 @@ public class TaskValidateService {
         }
     }
 
-    void validateTaskGetting(Integer userId, TaskEntity taskEntity) throws IllegalAccessException {
+    void validateTaskGetting(Integer userId, TaskEntity taskEntity) {
 
         if (userId == null) {
             throw new IllegalArgumentException(USER_NOT_SPECIFIED);
         }
 
         if (!userRepository.existsById(userId)) {
-            throw new IllegalArgumentException(String.format(USER_NOT_EXIST, userId));
+            throw NotFoundException.userNotFound(userId);
         }
 
         Set<Integer> userIds = new HashSet<>();
@@ -53,7 +55,7 @@ public class TaskValidateService {
         userIds.addAll(taskEntity.getExecutorIds());
 
         if (taskEntity.isConfidential() && !userIds.contains(userId)) {
-            throw new IllegalAccessException(DO_NOT_HAVE_PERMISSION_TO_VIEW_TASK);
+            throw NotFoundException.taskNotFound(taskEntity.getId());
         }
     }
 }

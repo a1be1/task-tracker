@@ -589,10 +589,10 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
         //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(DO_NOT_HAVE_PERMISSION_TO_VIEW_TASK);
+        assertThat(response.errorMessage()).isEqualTo(String.format(TASK_NOT_EXIST, taskId));
     }
 
     @Test
@@ -609,7 +609,7 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
         //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.errorMessage()).isEqualTo(String.format(USER_NOT_EXIST, userId));
@@ -648,7 +648,7 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
         //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.errorMessage()).isEqualTo(String.format(TASK_NOT_EXIST, taskId));

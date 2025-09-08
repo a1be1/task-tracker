@@ -21,5 +21,4 @@ public interface ValidationMessage {
     String TASK_PRIORITY_NULL = "Priority must be specified";
     String TASK_REPORTER_NULL = "Reporter must be required";
     String TASK_NOT_EXIST = "Task with id %s doesn't exist";
-    String DO_NOT_HAVE_PERMISSION_TO_VIEW_TASK = "You don't have permission to view this task";
 }
