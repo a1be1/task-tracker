@@ -1,5 +1,6 @@
 package com.family_tasks.tracker.task.core;
 
+import com.family_tasks.tracker.common.error.exception.NotFoundException;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
@@ -9,8 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_NOT_EXIST;
-
 @Service
 @RequiredArgsConstructor
 public class TaskGetService {
@@ -19,10 +18,10 @@ public class TaskGetService {
     private final TaskGetMapper mapper;
     private final TaskValidateService validateService;
 
-    public TaskApiResponse getTask(String id, Integer userId) throws IllegalAccessException {
+    public TaskApiResponse getTask(String id, Integer userId) {
 
         Optional<TaskEntity> fromDB = taskRepository.findById(id);
-        TaskEntity taskEntity = fromDB.orElseThrow(() -> new IllegalArgumentException(String.format(TASK_NOT_EXIST, id)));
+        TaskEntity taskEntity = fromDB.orElseThrow(() -> NotFoundException.taskNotFound(id));
 
         validateService.validateTaskGetting(userId, taskEntity);
 

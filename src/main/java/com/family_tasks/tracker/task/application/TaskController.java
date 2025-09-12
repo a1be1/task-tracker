@@ -40,7 +40,7 @@ public class TaskController {
     public TaskApiResponse getTask(@PathVariable String taskId,
                                    @NotNull(message = USER_NOT_SPECIFIED)
                                    @RequestParam(name = "userId", required = false)
-                                   Integer userId) throws IllegalAccessException {
+                                   Integer userId) {
         return taskGetService.getTask(taskId, userId);
     }
 }

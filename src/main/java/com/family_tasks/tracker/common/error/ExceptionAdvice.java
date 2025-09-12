@@ -1,5 +1,6 @@
 package com.family_tasks.tracker.common.error;
 
+import com.family_tasks.tracker.common.error.exception.NotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -45,12 +46,12 @@ public class ExceptionAdvice {
                 .body(new ErrorResponse(errorMessage));
     }
 
-    @ExceptionHandler(IllegalAccessException.class)
-    public ResponseEntity<ErrorResponse> IllegalAccessException(IllegalAccessException e) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> notFoundException(NotFoundException e) {
         log.error("Exception: ", e);
         String errorMessage = e.getMessage();
         return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
+                .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(errorMessage));
     }
 
