@@ -7,7 +7,7 @@ import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
 import com.family_tasks.tracker.task.model.dto.TaskUpdateApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
-import com.family_tasks.tracker.task.model.enums.Priority;
+import com.family_tasks.tracker.task.model.enums.TaskPriority;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
@@ -658,7 +658,7 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         return TaskCreateApiRequest.builder()
                 .name("Name of task")
                 .description("Description of task")
-                .priority(Priority.HIGH.name())
+                .priority(TaskPriority.HIGH.name())
                 .reporterId(createUser())
                 .executorIds(Set.of())
                 .confidential(true)
@@ -682,7 +682,7 @@ public class TaskControllerTest extends AbstractIntegrationTest {
                 .confidential(true)
                 .deadline(LocalDate.now().plusDays(1))
                 .executorIds(Set.of())
-                .priority(Priority.LOW.name())
+                .priority(TaskPriority.LOW.name())
                 .status(TaskStatus.CANCELLED.name());
     }
 
@@ -692,24 +692,24 @@ public class TaskControllerTest extends AbstractIntegrationTest {
         taskEntity.setId(UUID.randomUUID().toString());
         taskEntity.setName("Name of task");
         taskEntity.setDescription("Description of task");
-        taskEntity.setPriority((Priority.HIGH));
+        taskEntity.setPriority((TaskPriority.HIGH.name()));
         taskEntity.setReporterId(createUser());
         taskEntity.setExecutorIds(Set.of());
         taskEntity.setConfidential(false);
         taskEntity.setDeadline(LocalDate.now().plusDays(1));
         taskEntity.setCreatedAt(LocalDateTime.now());
         taskEntity.setUpdatedAt(LocalDateTime.now());
-        taskEntity.setStatus(TaskStatus.TO_DO);
+        taskEntity.setStatus(TaskStatus.TO_DO.name());
 
         return taskEntity;
     }
 
     private void compareTaskApiResponseWithTaskEntity(TaskApiResponse response, TaskEntity taskEntity) {
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(taskEntity.getStatus());
+        assertThat(response.getStatus().name()).isEqualTo(taskEntity.getStatus());
         assertThat(response.getName()).isEqualTo(taskEntity.getName());
         assertThat(response.getDescription()).isEqualTo(taskEntity.getDescription());
-        assertThat(response.getPriority()).isEqualTo(taskEntity.getPriority());
+        assertThat(response.getPriority().name()).isEqualTo(taskEntity.getPriority());
         assertThat(response.getExecutorIds()).isEqualTo(taskEntity.getExecutorIds());
         assertThat(response.isConfidential()).isEqualTo(taskEntity.isConfidential());
         assertThat(response.getDeadline()).isEqualTo(taskEntity.getDeadline());

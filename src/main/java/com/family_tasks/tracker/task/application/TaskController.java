@@ -5,6 +5,7 @@ import com.family_tasks.tracker.task.core.TaskGetService;
 import com.family_tasks.tracker.task.core.TaskUpdateService;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
+import com.family_tasks.tracker.task.model.dto.TaskFilterRequest;
 import com.family_tasks.tracker.task.model.dto.TaskUpdateApiRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+import static com.family_tasks.tracker.common.validation.ValidationMessage.FILTER_NOT_SPECIFIED;
 import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
 
 @Validated
@@ -36,11 +40,25 @@ public class TaskController {
     }
 
     @GetMapping(TASK_URL + "/{taskId}")
-
     public TaskApiResponse getTask(@PathVariable String taskId,
                                    @NotNull(message = USER_NOT_SPECIFIED)
                                    @RequestParam(name = "userId", required = false)
                                    Integer userId) {
         return taskGetService.getTask(taskId, userId);
+    }
+
+    @GetMapping(TASK_URL + "/all")
+    public List<TaskApiResponse> getTasks(@NotNull(message = USER_NOT_SPECIFIED)
+                                          @RequestParam(name = "userId", required = false)
+                                          Integer userId,
+                                          @NotNull(message = FILTER_NOT_SPECIFIED)
+                                          @Validated
+                                          @RequestParam(name = "filter", required = false)
+                                          String filter) {
+        TaskFilterRequest taskFilterRequest = TaskFilterRequest.builder()
+                .filter(filter)
+                .userId(userId)
+                .build();
+        return taskGetService.getTasks(taskFilterRequest);
     }
 }

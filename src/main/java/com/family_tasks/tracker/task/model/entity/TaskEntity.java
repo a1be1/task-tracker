@@ -1,8 +1,6 @@
 package com.family_tasks.tracker.task.model.entity;
 
 import com.family_tasks.tracker.common.TableNames;
-import com.family_tasks.tracker.task.model.enums.Priority;
-import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,10 +22,10 @@ import static com.family_tasks.tracker.common.TableNames.EXECUTORS_TASKS_TABLE;
 public class TaskEntity {
     @Id
     private String id;
-    private TaskStatus status;
+    private String status;
     private String name;
     private String description;
-    private Priority priority;
+    private String priority;
     private Integer reporterId;
     @ElementCollection
     @CollectionTable(

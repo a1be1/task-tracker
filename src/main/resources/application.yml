@@ -1,7 +1,7 @@
 spring.datasource:
   url: jdbc:postgresql://localhost:5432/task-tracker
-  username: user
-  password: password
+  username: admin
+  password: 95751535
 
 flyway:
   enabled: true

@@ -21,4 +21,6 @@ public interface ValidationMessage {
     String TASK_PRIORITY_NULL = "Priority must be specified";
     String TASK_REPORTER_NULL = "Reporter must be required";
     String TASK_NOT_EXIST = "Task with id %s doesn't exist";
+    String TASK_FILTER_INVALID = "Invalid filter value. Please enter a valid filter.";
+    String FILTER_NOT_SPECIFIED = "A task's filter isn't specified.";
 }

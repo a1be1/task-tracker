@@ -3,11 +3,14 @@ package com.family_tasks.tracker.task.core;
 import com.family_tasks.tracker.common.error.exception.NotFoundException;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
+import com.family_tasks.tracker.task.model.dto.TaskFilterRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
+import com.family_tasks.tracker.task.model.enums.TaskFilter;
 import com.family_tasks.tracker.task.model.mupper.TaskGetMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,5 +29,22 @@ public class TaskGetService {
         validateService.validateTaskGetting(userId, taskEntity);
 
         return mapper.toResponse(taskEntity);
+    }
+
+    public List<TaskApiResponse> getTasks(TaskFilterRequest taskFilterRequest) {
+
+        List<TaskEntity> tasks = switch (TaskFilter.fromValue(taskFilterRequest.getFilter())) {
+            case ALL_AVAILABLE -> taskRepository.findAllTasksWithoutFilters(taskFilterRequest.getUserId());
+            case ALL_CANCELLED -> taskRepository.findAllClosedTasks(taskFilterRequest.getUserId());
+            case IS_REPORTER_ACTIVE_TASK ->
+                    taskRepository.findTasksWhereUserIsReporterAndTasksActive(taskFilterRequest.getUserId());
+            case IS_REPORTER_COMPLETED_TASK ->
+                    taskRepository.findTasksWhereUserIsReporterAndTasksCompleted(taskFilterRequest.getUserId());
+            case IS_EXECUTOR_ACTIVE_TASK ->
+                    taskRepository.findTasksWhereUserIsExecutorAndTasksActive(taskFilterRequest.getUserId());
+            case IS_EXECUTOR_COMPLETED_TASK ->
+                    taskRepository.findTasksWhereUserIsExecutorAndTasksCompleted(taskFilterRequest.getUserId());
+        };
+        return tasks.stream().map(mapper::toResponse).toList();
     }
 }
