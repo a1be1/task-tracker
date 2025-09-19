@@ -41,14 +41,7 @@ public class TaskValidateService {
     }
 
     void validateTaskGetting(Integer userId, TaskEntity taskEntity) {
-
-        if (userId == null) {
-            throw new IllegalArgumentException(USER_NOT_SPECIFIED);
-        }
-
-        if (!userRepository.existsById(userId)) {
-            throw NotFoundException.userNotFound(userId);
-        }
+        validateUserExisting(userId);
 
         Set<Integer> userIds = new HashSet<>();
         userIds.add(taskEntity.getReporterId());
@@ -56,6 +49,16 @@ public class TaskValidateService {
 
         if (taskEntity.isConfidential() && !userIds.contains(userId)) {
             throw NotFoundException.taskNotFound(taskEntity.getId());
+        }
+    }
+
+    void validateUserExisting(Integer userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException(USER_NOT_SPECIFIED);
+        }
+
+        if (!userRepository.existsById(userId)) {
+            throw NotFoundException.userNotFound(userId);
         }
     }
 }

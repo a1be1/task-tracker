@@ -1,5 +1,6 @@
 package com.family_tasks.tracker.task.application;
 
+import com.family_tasks.tracker.common.validation.annotation.ValidTaskFilter;
 import com.family_tasks.tracker.task.core.TaskCreateService;
 import com.family_tasks.tracker.task.core.TaskGetService;
 import com.family_tasks.tracker.task.core.TaskUpdateService;
@@ -52,7 +53,7 @@ public class TaskController {
                                           @RequestParam(name = "userId", required = false)
                                           Integer userId,
                                           @NotNull(message = FILTER_NOT_SPECIFIED)
-                                          @Validated
+                                          @ValidTaskFilter
                                           @RequestParam(name = "filter", required = false)
                                           String filter) {
         TaskFilterRequest taskFilterRequest = TaskFilterRequest.builder()

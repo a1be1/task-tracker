@@ -17,7 +17,7 @@ public class ValidTaskFilterValidator implements ConstraintValidator<ValidTaskFi
 
     @Override
     public boolean isValid(String string, ConstraintValidatorContext constraintValidatorContext) {
-        return isEmpty(string);
+        return isEmpty(string) || VALID_FILTER.contains(string);
     }
 
     private boolean isEmpty(String string) {

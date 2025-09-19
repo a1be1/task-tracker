@@ -13,7 +13,7 @@ public interface TaskUpdateMapper {
     @Mapping(target = "taskId", source = "id")
     TaskApiResponse toResponse(TaskEntity entity);
 
-    @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "updatedAt", expression = "java(com.family_tasks.tracker.common.utils.TimeUtils.now())")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "reporterId", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
