@@ -8,6 +8,7 @@ import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
 import com.family_tasks.tracker.task.model.dto.TaskFilterRequest;
 import com.family_tasks.tracker.task.model.dto.TaskUpdateApiRequest;
+import com.family_tasks.tracker.task.model.enums.TaskFilter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.family_tasks.tracker.common.validation.ValidationMessage.FILTER_NOT_SPECIFIED;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_FILTER_NOT_SPECIFIED;
 import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
 
 @Validated
@@ -48,16 +49,16 @@ public class TaskController {
         return taskGetService.getTask(taskId, userId);
     }
 
-    @GetMapping(TASK_URL + "/all")
+    @GetMapping(TASK_URL)
     public List<TaskApiResponse> getTasks(@NotNull(message = USER_NOT_SPECIFIED)
                                           @RequestParam(name = "userId", required = false)
                                           Integer userId,
-                                          @NotNull(message = FILTER_NOT_SPECIFIED)
+                                          @NotNull(message = TASK_FILTER_NOT_SPECIFIED)
                                           @ValidTaskFilter
                                           @RequestParam(name = "filter", required = false)
                                           String filter) {
         TaskFilterRequest taskFilterRequest = TaskFilterRequest.builder()
-                .filter(filter)
+                .filter(TaskFilter.valueOf(filter))
                 .userId(userId)
                 .build();
         return taskGetService.getTasks(taskFilterRequest);

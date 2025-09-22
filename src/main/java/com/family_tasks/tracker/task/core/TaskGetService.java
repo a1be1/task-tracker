@@ -9,7 +9,6 @@ import com.family_tasks.tracker.task.model.enums.TaskFilter;
 import com.family_tasks.tracker.task.model.mupper.TaskGetMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,13 +32,13 @@ public class TaskGetService {
         return mapper.toResponse(taskEntity);
     }
 
-    public List<TaskApiResponse> getTasks(@Validated TaskFilterRequest taskFilterRequest) {
+    public List<TaskApiResponse> getTasks(TaskFilterRequest taskFilterRequest) {
 
         validateService.validateUserExisting(taskFilterRequest.getUserId());
 
-        List<TaskEntity> tasks = switch (TaskFilter.valueOf(taskFilterRequest.getFilter())) {
+        List<TaskEntity> tasks = switch (taskFilterRequest.getFilter()) {
             case ALL_AVAILABLE -> taskRepository.findAllTasksWithoutFilters(taskFilterRequest.getUserId());
-            case ALL_CANCELLED -> taskRepository.findAllClosedTasks(taskFilterRequest.getUserId());
+            case ALL_CLOSED -> taskRepository.findAllClosedTasks(taskFilterRequest.getUserId());
             case IS_REPORTER_ACTIVE_TASK ->
                     taskRepository.findTasksWhereUserIsReporterAndTasksActive(taskFilterRequest.getUserId());
             case IS_REPORTER_COMPLETED_TASK ->
