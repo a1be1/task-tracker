@@ -12,7 +12,7 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<TaskEntity, String> {
     String orderByPriority = "order by  CASE t.priority WHEN 'HIGH' THEN 3 WHEN 'MEDIUM' THEN 2 WHEN 'LOW' THEN 1 ELSE 0 END DESC;";
 
-    @Query(value = "SELECT * FROM tasks t " +
+    @Query(value = "SELECT t.* FROM tasks t " +
             "LEFT JOIN executors_tasks et ON t.id = et.task_id AND et.user_id = :userId " +
             "WHERE t.reporter_id = :userId " +
             "OR et.user_id = :userId " +
@@ -21,7 +21,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, String> {
             nativeQuery = true)
     List<TaskEntity> findAllTasksWithoutFilters(@Param("userId") Integer userId);
 
-    @Query(value = "SELECT * FROM tasks t WHERE t.status ='CANCELLED'",
+    @Query(value = "SELECT t.* FROM tasks t WHERE t.status ='CANCELLED'",
             nativeQuery = true)
     List<TaskEntity> findAllClosedTasks(@Param("userId") Integer userId);
 
