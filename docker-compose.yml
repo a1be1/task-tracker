@@ -20,5 +20,19 @@ services:
       timeout: 5s
       retries: 10
 
+  app:
+    image: ghcr.io/a1be1/task-tracker-app:pr-14
+    container_name: task-tracker-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: ${POSTGRES_URL}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
 volumes:
   db-data:
