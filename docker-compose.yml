@@ -15,13 +15,13 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 5s
       timeout: 5s
       retries: 10
 
   app:
-    image: ghcr.io/a1be1/task-tracker-app:pr-14
+    image: ghcr.io/a1be1/task-tracker-app:pr-15
     container_name: task-tracker-app
     restart: unless-stopped
     depends_on:
