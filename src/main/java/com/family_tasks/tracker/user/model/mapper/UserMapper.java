@@ -14,7 +14,7 @@ public interface UserMapper {
     CreateUserApiResponse toResponse(UserEntity entity);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
-    @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "createdAt", expression = "java(com.family_tasks.tracker.common.utils.TimeUtils.now())")
+    @Mapping(target = "updatedAt", expression = "java(com.family_tasks.tracker.common.utils.TimeUtils.now())")
     UserEntity toEntity(CreateUserApiRequest request);
 }

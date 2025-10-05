@@ -9,12 +9,12 @@ import org.mapstruct.NullValueMappingStrategy;
 
 @Mapper(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface TaskCreateMapper {
-@Mapping(target = "taskId",source = "id")
+    @Mapping(target = "taskId", source = "id")
     TaskApiResponse toResponse(TaskEntity entity);
 
     @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID().toString())")
     @Mapping(target = "status", constant = "TO_DO")
-    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
-    @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "createdAt", expression = "java(com.family_tasks.tracker.common.utils.TimeUtils.now())")
+    @Mapping(target = "updatedAt", expression = "java(com.family_tasks.tracker.common.utils.TimeUtils.now())")
     TaskEntity toEntity(TaskCreateApiRequest request);
 }

@@ -2,7 +2,7 @@ package com.family_tasks.tracker.task.core;
 
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
-import com.family_tasks.tracker.task.model.enums.Priority;
+import com.family_tasks.tracker.task.model.enums.TaskPriority;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import com.family_tasks.tracker.task.model.mupper.TaskCreateMapper;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ public class TaskFactoryTest {
         TaskCreateApiRequest apiRequest = TaskCreateApiRequest.builder()
                 .name("Name of task")
                 .description("Description of task")
-                .priority(String.valueOf(Priority.HIGH))
+                .priority(String.valueOf(TaskPriority.HIGH))
                 .reporterId(1)
                 .confidential(true)
                 .executorIds(Set.of(1, 2, 3, 4, 5))
@@ -34,10 +34,10 @@ public class TaskFactoryTest {
         //validate
         assertThat(taskEntity).isNotNull();
         assertThat(taskEntity.getId()).isNotNull();
-        assertThat(taskEntity.getStatus()).isEqualTo(TaskStatus.TO_DO);
+        assertThat(taskEntity.getStatus()).isEqualTo(TaskStatus.TO_DO.name());
         assertThat(taskEntity.getName()).isEqualTo(apiRequest.getName());
         assertThat(taskEntity.getDescription()).isEqualTo(apiRequest.getDescription());
-        assertThat(taskEntity.getPriority().name()).isEqualTo(apiRequest.getPriority());
+        assertThat(taskEntity.getPriority()).isEqualTo(apiRequest.getPriority());
         assertThat(taskEntity.getReporterId()).isEqualTo(apiRequest.getReporterId());
         assertThat(taskEntity.getExecutorIds()).isEqualTo(apiRequest.getExecutorIds());
         assertThat(taskEntity.isConfidential()).isEqualTo(apiRequest.getConfidential());
