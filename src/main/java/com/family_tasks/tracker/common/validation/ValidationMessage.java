@@ -23,4 +23,6 @@ public interface ValidationMessage {
     String TASK_NOT_EXIST = "Task with id %s doesn't exist";
     String TASK_FILTER_INVALID = "Invalid filter value. Please enter a valid filter.";
     String TASK_FILTER_NOT_SPECIFIED = "A task's filter isn't specified.";
+    String GROUP_OWNER_NOT_SPECIFIED = "An owner isn't specified.";
+    String USER_ALREADY_IS_OWNER = "User with id %d is already the owner of another group.";
 }

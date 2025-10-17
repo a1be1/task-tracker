@@ -5,8 +5,7 @@ import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskFilterRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
-import com.family_tasks.tracker.task.model.enums.TaskFilter;
-import com.family_tasks.tracker.task.model.mupper.TaskGetMapper;
+import com.family_tasks.tracker.task.model.mapper.TaskGetMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +37,7 @@ public class TaskGetService {
 
         List<TaskEntity> tasks = switch (taskFilterRequest.getFilter()) {
             case ALL_AVAILABLE -> taskRepository.findAllTasksWithoutFilters(taskFilterRequest.getUserId());
-            case ALL_CLOSED -> taskRepository.findAllClosedTasks(taskFilterRequest.getUserId());
+            case ALL_CLOSED -> taskRepository.findAllClosedTasks();
             case IS_REPORTER_ACTIVE_TASK ->
                     taskRepository.findTasksWhereUserIsReporterAndTasksActive(taskFilterRequest.getUserId());
             case IS_REPORTER_COMPLETED_TASK ->

@@ -23,7 +23,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, String> {
 
     @Query(value = "SELECT t.* FROM tasks t WHERE t.status ='CANCELLED'",
             nativeQuery = true)
-    List<TaskEntity> findAllClosedTasks(@Param("userId") Integer userId);
+    List<TaskEntity> findAllClosedTasks();
 
     @Query(value = "select t.* from tasks t " +
             "where t.status !='CANCELLED' and t.status !='COMPLETED' and t.reporter_id = :userId " +

@@ -4,7 +4,7 @@ import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
-import com.family_tasks.tracker.task.model.mupper.TaskCreateMapper;
+import com.family_tasks.tracker.task.model.mapper.TaskCreateMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

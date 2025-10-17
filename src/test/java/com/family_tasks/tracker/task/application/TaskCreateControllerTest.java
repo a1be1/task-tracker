@@ -38,7 +38,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void createTask() {
         //prepare
-        TaskCreateApiRequest request = buildCreateRequest().build();
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId).build();
         //execute
         ResponseEntity<TaskApiResponse> responseEntity = client.postForEntity(TASK_URL, request, TaskApiResponse.class);
         //validate
@@ -62,7 +63,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenPriorityInvalid_createTask() {
         //prepare
-        TaskCreateApiRequest request = buildCreateRequest()
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .priority("INVALID_PRIORITY")
                 .build();
         //execute
@@ -77,7 +79,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenPriorityNull_createTask() {
         //prepare
-        TaskCreateApiRequest request = buildCreateRequest()
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .priority(null)
                 .build();
         //execute
@@ -92,7 +95,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenPriorityEmpty_createTask() {
         //prepare
-        TaskCreateApiRequest request = buildCreateRequest()
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .priority("")
                 .build();
         //execute
@@ -107,7 +111,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenEmptyTaskName_createTask() {
         //prepare
-        TaskCreateApiRequest request = buildCreateRequest()
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .name(null)
                 .build();
         //execute
@@ -121,7 +126,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
 
     @Test
     void whenTaskNameToLong_createTask() {
-        TaskCreateApiRequest request = buildCreateRequest()
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .name(randomString(TASK_NAME_MAX_LENGTH + 1))
                 .build();
         //execute
@@ -135,7 +141,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
 
     @Test
     void whenTaskDescriptionToLong_createTask() {
-        TaskCreateApiRequest request = buildCreateRequest()
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .description(randomString(TASK_DESCRIPTION_MAX_LENGTH + 1))
                 .build();
         //execute
@@ -149,7 +156,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
 
     @Test
     void whenTaskDescriptionToShort_createTask() {
-        TaskCreateApiRequest request = buildCreateRequest()
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .description(randomString(TASK_DESCRIPTION_MIN_LENGTH - 1))
                 .build();
         //execute
@@ -164,7 +172,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenDeadlineDateInvalid_createTask() {
         //prepare
-        TaskCreateApiRequest request = buildCreateRequest()
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .deadline(LocalDate.now())
                 .build();
         //execute
@@ -179,7 +188,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskConfidentialNull_createTask() {
         //prepare
-        TaskCreateApiRequest request = buildCreateRequest()
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .confidential(null)
                 .build();
         //execute
@@ -194,7 +204,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskReporterIdNull_createTask() {
         //prepare
-        TaskCreateApiRequest request = buildCreateRequest()
+        Integer reporterId = createUser();
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .reporterId(null)
                 .build();
         //execute
@@ -210,8 +221,7 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     void whenTaskReporterNotExist_createTask() {
         //prepare
         Integer reporterId = createUser() + 2;
-        TaskCreateApiRequest request = buildCreateRequest()
-                .reporterId(reporterId)
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
@@ -225,8 +235,9 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskExecutorNotExist_createTask() {
         //prepare
+        Integer reporterId = createUser();
         Integer executorId = createUser() + 2;
-        TaskCreateApiRequest request = buildCreateRequest()
+        TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .executorIds(Set.of(executorId))
                 .build();
         //execute
@@ -238,12 +249,12 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(String.format(USER_NOT_EXIST, executorId));
     }
 
-    private TaskCreateApiRequest.TaskCreateApiRequestBuilder buildCreateRequest() {
+    private TaskCreateApiRequest.TaskCreateApiRequestBuilder buildCreateRequest(Integer userId) {
         return TaskCreateApiRequest.builder()
                 .name("Name of task")
                 .description("Description of task")
                 .priority(TaskPriority.HIGH.name())
-                .reporterId(createUser())
+                .reporterId(userId)
                 .executorIds(Set.of())
                 .confidential(true)
                 .deadline(LocalDate.now().plusDays(1));

@@ -1,4 +1,4 @@
-package com.family_tasks.tracker.task.model.mupper;
+package com.family_tasks.tracker.task.model.mapper;
 
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
