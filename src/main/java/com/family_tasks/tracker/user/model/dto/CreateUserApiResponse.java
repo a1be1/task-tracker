@@ -18,4 +18,6 @@ public class CreateUserApiResponse {
     private final String name;
     @Schema(description = "This flag enables or disables task creation for the user.")
     private final boolean admin;
+    @Schema(description = "The group ID")
+    private final Integer groupId;
 }

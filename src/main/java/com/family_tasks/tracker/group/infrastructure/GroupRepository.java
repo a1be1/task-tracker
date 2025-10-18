@@ -11,4 +11,7 @@ public interface GroupRepository extends JpaRepository<GroupEntity, Integer> {
 
     @Query(value = "SELECT COUNT(*) > 0 FROM groups g WHERE g.owner_id = :ownerId", nativeQuery = true)
     boolean existsByOwnerId(@Param("ownerId") Integer ownerId);
+
+    @Query(value = "SELECT COUNT(*) > 0 FROM groups g WHERE g.id = :groupId", nativeQuery = true)
+    boolean existByGroupId(@Param("groupId") Integer groupId);
 }

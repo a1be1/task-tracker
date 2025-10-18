@@ -24,6 +24,7 @@ public class UserEntity {
     private Integer id;
     private String name;
     private boolean admin;
+    private Integer groupId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

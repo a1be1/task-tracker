@@ -25,4 +25,5 @@ public interface ValidationMessage {
     String TASK_FILTER_NOT_SPECIFIED = "A task's filter isn't specified.";
     String GROUP_OWNER_NOT_SPECIFIED = "An owner isn't specified.";
     String USER_ALREADY_IS_OWNER = "User with id %d is already the owner of another group.";
+    String GROUP_NOT_EXIST = "Group with id %d doesn't exist";
 }

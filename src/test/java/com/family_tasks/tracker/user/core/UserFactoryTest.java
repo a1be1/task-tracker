@@ -18,12 +18,14 @@ class UserFactoryTest {
         CreateUserApiRequest apiRequest = CreateUserApiRequest.builder()
                 .name("Some user name")
                 .admin(true)
+                .groupId(1)
                 .build();
 
         UserEntity userEntity = userFactory.createUser(apiRequest);
         assertThat(userEntity.getId()).isNull();
         assertThat(userEntity.getName()).isEqualTo(apiRequest.getName());
         assertThat(userEntity.isAdmin()).isTrue();
+        assertThat(userEntity.getGroupId()).isEqualTo(apiRequest.getGroupId());
         assertThat(userEntity.getCreatedAt()).isNotNull();
         assertThat(userEntity.getUpdatedAt()).isNotNull();
     }
