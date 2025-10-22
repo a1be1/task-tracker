@@ -45,9 +45,6 @@ public class GroupCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response).isNotNull();
         assertThat(response.getGroupId()).isNotNull();
         assertThat(response.getOwnerId()).isEqualTo(request.getOwnerId());
-        assertThat(response.getCreatedAt()).isNotNull();
-        assertThat(response.getUpdatedAt()).isNotNull();
-        assertThat(response.getDeletedAt()).isNull();
 
         GroupEntity groupEntity = groupRepository.findById(response.getGroupId()).orElseThrow();
         assertThat(groupEntity).isNotNull();

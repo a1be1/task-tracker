@@ -1,9 +1,10 @@
 package com.family_tasks.tracker.group.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-
-import java.time.LocalDateTime;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @Builder
@@ -14,10 +15,4 @@ public class GroupApiResponse {
     private final Integer groupId;
     @Schema(description = "The owner ID")
     private final Integer ownerId;
-    @Schema(description = "The datetime of the group creation.")
-    private final LocalDateTime createdAt;
-    @Schema(description = "The datetime of the last group update.")
-    private final LocalDateTime updatedAt;
-    @Schema(description = "The datetime of the group deletion.")
-    private final LocalDateTime deletedAt;
 }
