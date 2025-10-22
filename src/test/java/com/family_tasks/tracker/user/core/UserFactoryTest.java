@@ -2,7 +2,7 @@ package com.family_tasks.tracker.user.core;
 
 import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
-import com.family_tasks.tracker.user.model.mapper.UserMapper;
+import com.family_tasks.tracker.user.model.mapper.UserCreateMapper;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UserFactoryTest {
 
-    private final UserMapper mapper = Mappers.getMapper(UserMapper.class);
+    private final UserCreateMapper mapper = Mappers.getMapper(UserCreateMapper.class);
     private final UserFactory userFactory = new UserFactory(mapper);
 
     @Test

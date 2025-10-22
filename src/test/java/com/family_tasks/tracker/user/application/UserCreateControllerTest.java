@@ -7,7 +7,7 @@ import com.family_tasks.tracker.group.infrastructure.GroupRepository;
 import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
-import com.family_tasks.tracker.user.model.dto.CreateUserApiResponse;
+import com.family_tasks.tracker.user.model.dto.UserApiResponse;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import com.family_tasks.tracker.utils.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link UserController}
  */
-class UserControllerTest extends AbstractIntegrationTest {
+class UserCreateControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
@@ -36,10 +36,10 @@ class UserControllerTest extends AbstractIntegrationTest {
         //prepare
         CreateUserApiRequest request = buildRequest().build();
         //execute
-        ResponseEntity<CreateUserApiResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, CreateUserApiResponse.class);
+        ResponseEntity<UserApiResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, UserApiResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        CreateUserApiResponse response = responseEntity.getBody();
+        UserApiResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.getUserId()).isNotNull();
         assertThat(response.getName()).isEqualTo(request.getName());
@@ -58,10 +58,10 @@ class UserControllerTest extends AbstractIntegrationTest {
                 .groupId(groupId)
                 .build();
         //execute
-        ResponseEntity<CreateUserApiResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, CreateUserApiResponse.class);
+        ResponseEntity<UserApiResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, UserApiResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        CreateUserApiResponse response = responseEntity.getBody();
+        UserApiResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.getUserId()).isNotNull();
         assertThat(response.getName()).isEqualTo(request.getName());

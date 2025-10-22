@@ -10,7 +10,7 @@ import lombok.ToString;
 @Builder
 @ToString
 @EqualsAndHashCode
-public class CreateUserApiResponse {
+public class UserApiResponse {
 
     @Schema(description = "The user ID")
     private final Integer userId;
