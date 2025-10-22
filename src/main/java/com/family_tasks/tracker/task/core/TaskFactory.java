@@ -2,7 +2,7 @@ package com.family_tasks.tracker.task.core;
 
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
-import com.family_tasks.tracker.task.model.mupper.TaskCreateMapper;
+import com.family_tasks.tracker.task.model.mapper.TaskCreateMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

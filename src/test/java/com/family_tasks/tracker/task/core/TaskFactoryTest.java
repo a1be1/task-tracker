@@ -4,7 +4,7 @@ import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.task.model.enums.TaskPriority;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
-import com.family_tasks.tracker.task.model.mupper.TaskCreateMapper;
+import com.family_tasks.tracker.task.model.mapper.TaskCreateMapper;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
