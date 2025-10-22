@@ -27,4 +27,6 @@ public class CreateUserApiRequest {
     @Schema(description = "This flag enables or disables task creation for the user.")
     @NotNull(message = IS_ADMIN_NOT_SPECIFIED)
     private final Boolean admin;
+    @Schema(description = "The group ID")
+    private final Integer groupId;
 }

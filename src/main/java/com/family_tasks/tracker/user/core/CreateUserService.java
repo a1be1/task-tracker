@@ -15,8 +15,10 @@ public class CreateUserService {
     private final UserFactory userFactory;
     private final UserRepository userRepository;
     private final UserMapper mapper;
+    private final UserValidateService validateService;
 
     public CreateUserApiResponse createUser(CreateUserApiRequest apiRequest) {
+        validateService.validateUserCreation(apiRequest);
         UserEntity userEntity = userFactory.createUser(apiRequest);
         userRepository.save(userEntity);
         return mapper.toResponse(userEntity);
