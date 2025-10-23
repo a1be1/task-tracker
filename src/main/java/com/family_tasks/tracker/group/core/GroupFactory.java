@@ -17,7 +17,7 @@ public class GroupFactory {
     public GroupEntity createGroup(GroupCreateApiRequest apiRequest) {
         log.info("Creating a new group. Request: {}", apiRequest);
         GroupEntity entity = mapper.toEntity(apiRequest);
-        log.info("Creating a new group. Request: {}", entity);
+        log.info("Creating a new group. Result: {}", entity);
         return entity;
     }
 }
