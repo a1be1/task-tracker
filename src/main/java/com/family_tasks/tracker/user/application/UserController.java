@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
 
 @Validated
@@ -28,10 +30,28 @@ public class UserController {
     }
 
     @GetMapping(USER_URL + "/{userId}")
-    public UserApiResponse getUser(@PathVariable Integer userId,
+    public UserApiResponse getUser(@NotNull(message = USER_NOT_SPECIFIED)
+                                   @PathVariable String userId,
                                    @NotNull(message = USER_NOT_SPECIFIED)
-                                   @RequestParam(name = "requestingUserId", required = true)
-                                   Integer requestingUserId) {
-        return userGetService.getUser(userId, requestingUserId);
+                                   @RequestParam(name = "requestingUserId", required = false)
+                                   String requestingUserId) {
+        return userGetService.getUser(parseId(userId), parseId(requestingUserId));
+    }
+
+    @GetMapping(USER_URL)
+    public List<UserApiResponse> getUsers(@NotNull(message = USER_NOT_SPECIFIED)
+                                          @RequestParam(name = "userId", required = false)
+                                          String userId) {
+        return userGetService.getUsers(parseId(userId));
+    }
+
+    private Integer parseId(String stringId) {
+        Integer id = null;
+        try {
+            id = Integer.parseInt(stringId);
+        } catch (NumberFormatException exception) {
+            exception.getMessage();
+        }
+        return id;
     }
 }

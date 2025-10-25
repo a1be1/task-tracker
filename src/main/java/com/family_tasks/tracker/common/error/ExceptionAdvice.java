@@ -55,6 +55,15 @@ public class ExceptionAdvice {
                 .body(new ErrorResponse(errorMessage));
     }
 
+    @ExceptionHandler(NumberFormatException.class)
+    public ResponseEntity<ErrorResponse> numberFormatException(NumberFormatException e) {
+        log.error("Exception: ", e);
+        String errorMessage = e.getMessage();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(errorMessage));
+    }
+
     @ExceptionHandler({Throwable.class})
     public ResponseEntity<ErrorResponse> serverError(Throwable throwable) {
         log.error("Server error", throwable);

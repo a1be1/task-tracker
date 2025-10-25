@@ -8,6 +8,7 @@ import com.family_tasks.tracker.user.model.mapper.UserGetMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,11 +21,26 @@ public class UserGetService {
 
     public UserApiResponse getUser(Integer userId, Integer requestingUserId) {
 
+        validateService.validateUserExisting(userId);
         validateService.validateUserExisting(requestingUserId);
 
         Optional<UserEntity> fromDB = userRepository.findById(userId);
         UserEntity userEntity = fromDB.orElseThrow(() -> NotFoundException.userNotFound(userId));
 
         return mapper.toResponse(userEntity);
+    }
+
+    public List<UserApiResponse> getUsers(Integer userId) {
+
+        validateService.validateUserExisting(userId);
+        Optional<UserEntity> fromDB = userRepository.findById(userId);
+        UserEntity userEntity = fromDB.orElseThrow(() -> NotFoundException.userNotFound(userId));
+        List<UserApiResponse> userList = List.of();
+        if (userEntity.getGroupId() != null) {
+            userList = userRepository.findAllUsersByGroup(userEntity.getGroupId()).stream()
+                    .map(mapper::toResponse)
+                    .toList();
+        }
+        return userList;
     }
 }

@@ -44,6 +44,7 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response.getUserId()).isNotNull();
         assertThat(response.getName()).isEqualTo(request.getName());
         assertThat(response.isAdmin()).isEqualTo(request.getAdmin());
+        assertThat(response.getGroupId()).isEqualTo(request.getGroupId());
 
         Integer userId = response.getUserId();
         assertThat(userRepository.findById(userId)).isNotNull();
@@ -66,6 +67,7 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response.getUserId()).isNotNull();
         assertThat(response.getName()).isEqualTo(request.getName());
         assertThat(response.isAdmin()).isEqualTo(request.getAdmin());
+        assertThat(response.getGroupId()).isEqualTo(request.getGroupId());
 
         Integer userId = response.getUserId();
         assertThat(userRepository.findById(userId)).isNotNull();
@@ -155,6 +157,7 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setName("user name");
         userEntity.setAdmin(false);
+        userEntity.setGroupId(null);
         userEntity.setCreatedAt(TimeUtils.now());
         userEntity.setUpdatedAt(TimeUtils.now());
         userRepository.save(userEntity);
