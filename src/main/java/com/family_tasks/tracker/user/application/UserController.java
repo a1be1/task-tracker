@@ -2,8 +2,10 @@ package com.family_tasks.tracker.user.application;
 
 import com.family_tasks.tracker.user.core.UserCreateService;
 import com.family_tasks.tracker.user.core.UserGetService;
-import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
+import com.family_tasks.tracker.user.core.UserUpdateService;
 import com.family_tasks.tracker.user.model.dto.UserApiResponse;
+import com.family_tasks.tracker.user.model.dto.UserCreateApiRequest;
+import com.family_tasks.tracker.user.model.dto.UserUpdateApiRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +23,20 @@ public class UserController {
 
     public static final String USER_URL = "/v1/users";
 
-    private final UserCreateService createUserService;
+    private final UserCreateService userCreateService;
     private final UserGetService userGetService;
+    private final UserUpdateService userUpdateService;
 
     @PostMapping(USER_URL)
-    public UserApiResponse createUser(@Valid @RequestBody CreateUserApiRequest request) {
-        return createUserService.createUser(request);
+    public UserApiResponse createUser(@Valid @RequestBody UserCreateApiRequest request) {
+        return userCreateService.createUser(request);
+    }
+
+    @PutMapping(USER_URL + "/{userId}")
+    public UserApiResponse updateUser(@NotNull(message = USER_NOT_SPECIFIED)
+                                      @PathVariable String userId,
+                                      @Valid @RequestBody UserUpdateApiRequest request) {
+        return userUpdateService.updateUser(parseId(userId), request);
     }
 
     @GetMapping(USER_URL + "/{userId}")

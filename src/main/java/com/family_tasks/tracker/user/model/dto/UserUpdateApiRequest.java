@@ -10,15 +10,13 @@ import lombok.Getter;
 import lombok.ToString;
 
 import static com.family_tasks.tracker.common.validation.ValidationConstants.USER_NAME_MAX_LENGTH;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.IS_ADMIN_NOT_SPECIFIED;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NAME_NOT_SPECIFIED;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NAME_TOO_LONG;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 
 @Getter
 @Builder
 @ToString
 @EqualsAndHashCode
-public class CreateUserApiRequest {
+public class UserUpdateApiRequest {
 
     @Schema(description = "The user name")
     @Size(max = USER_NAME_MAX_LENGTH, message = USER_NAME_TOO_LONG)

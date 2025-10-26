@@ -43,4 +43,8 @@ public class TestUtils {
     public static long randomLong() {
         return RANDOM.nextLong(10000);
     }
+
+    public static boolean randomBoolean() {
+        return RANDOM.nextBoolean();
+    }
 }

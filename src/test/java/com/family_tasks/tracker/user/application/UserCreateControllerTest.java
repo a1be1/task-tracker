@@ -6,7 +6,7 @@ import com.family_tasks.tracker.common.utils.TimeUtils;
 import com.family_tasks.tracker.group.infrastructure.GroupRepository;
 import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
-import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
+import com.family_tasks.tracker.user.model.dto.UserCreateApiRequest;
 import com.family_tasks.tracker.user.model.dto.UserApiResponse;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import com.family_tasks.tracker.utils.TestUtils;
@@ -34,7 +34,7 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void withoutGroup_createUser() {
         //prepare
-        CreateUserApiRequest request = buildRequest().build();
+        UserCreateApiRequest request = buildRequest().build();
         //execute
         ResponseEntity<UserApiResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, UserApiResponse.class);
         //validate
@@ -55,7 +55,7 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
         //prepare
         Integer ownerId = createUser();
         Integer groupId = createGroup(ownerId);
-        CreateUserApiRequest request = buildRequest()
+        UserCreateApiRequest request = buildRequest()
                 .groupId(groupId)
                 .build();
         //execute
@@ -76,7 +76,7 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void invalidUserName_createUser() {
         //prepare
-        CreateUserApiRequest request = buildRequest()
+        UserCreateApiRequest request = buildRequest()
                 .name(TestUtils.randomString(USER_NAME_MAX_LENGTH + 1))
                 .build();
         //execute
@@ -91,7 +91,7 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void emptyUserName_createUser() {
         //prepare
-        CreateUserApiRequest request = buildRequest()
+        UserCreateApiRequest request = buildRequest()
                 .name(null)
                 .build();
         //execute
@@ -106,7 +106,7 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void emptyIsAdmin_createUser() {
         //prepare
-        CreateUserApiRequest request = buildRequest()
+        UserCreateApiRequest request = buildRequest()
                 .admin(null)
                 .build();
         //execute
@@ -123,7 +123,7 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
         //prepare
         Integer ownerId = createUser();
         Integer groupId = createGroup(ownerId) + 2;
-        CreateUserApiRequest request = buildRequest()
+        UserCreateApiRequest request = buildRequest()
                 .groupId(groupId)
                 .build();
         //execute
@@ -135,8 +135,8 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(String.format(GROUP_NOT_EXIST, groupId));
     }
 
-    private CreateUserApiRequest.CreateUserApiRequestBuilder buildRequest() {
-        return CreateUserApiRequest.builder()
+    private UserCreateApiRequest.UserCreateApiRequestBuilder buildRequest() {
+        return UserCreateApiRequest.builder()
                 .name("user1")
                 .admin(true)
                 .groupId(null);
