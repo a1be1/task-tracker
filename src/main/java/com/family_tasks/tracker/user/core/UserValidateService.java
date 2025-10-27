@@ -3,8 +3,7 @@ package com.family_tasks.tracker.user.core;
 import com.family_tasks.tracker.common.error.exception.NotFoundException;
 import com.family_tasks.tracker.group.infrastructure.GroupRepository;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
-import com.family_tasks.tracker.user.model.dto.UserCreateApiRequest;
-import com.family_tasks.tracker.user.model.dto.UserUpdateApiRequest;
+import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +17,7 @@ public class UserValidateService {
     @Autowired
     private UserRepository userRepository;
 
-    void validateUserCreation(UserCreateApiRequest apiRequest) {
-        Integer groupId = apiRequest.getGroupId();
+    void validateGroupExisting(Integer groupId) {
         if (groupId != null && !groupRepository.existByGroupId(groupId)) {
             throw new IllegalArgumentException(String.format(GROUP_NOT_EXIST, groupId));
         }
@@ -32,13 +30,6 @@ public class UserValidateService {
 
         if (!userRepository.existsById(userId)) {
             throw NotFoundException.userNotFound(userId);
-        }
-    }
-
-    void validateUserUpdating(UserUpdateApiRequest apiRequest) {
-        Integer groupId = apiRequest.getGroupId();
-        if (groupId != null && !groupRepository.existByGroupId(groupId)) {
-            throw new IllegalArgumentException(String.format(GROUP_NOT_EXIST, groupId));
         }
     }
 }

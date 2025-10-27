@@ -19,10 +19,9 @@ public class UserGetService {
     private final UserGetMapper mapper;
     private final UserValidateService validateService;
 
-    public UserApiResponse getUser(Integer userId, Integer requestingUserId) {
+    public UserApiResponse getUser(Integer userId) {
 
         validateService.validateUserExisting(userId);
-        validateService.validateUserExisting(requestingUserId);
 
         Optional<UserEntity> fromDB = userRepository.findById(userId);
         UserEntity userEntity = fromDB.orElseThrow(() -> NotFoundException.userNotFound(userId));
@@ -30,17 +29,14 @@ public class UserGetService {
         return mapper.toResponse(userEntity);
     }
 
-    public List<UserApiResponse> getUsers(Integer userId) {
+    public List<UserApiResponse> getUsers(Integer groupId) {
 
-        validateService.validateUserExisting(userId);
-        Optional<UserEntity> fromDB = userRepository.findById(userId);
-        UserEntity userEntity = fromDB.orElseThrow(() -> NotFoundException.userNotFound(userId));
+        validateService.validateGroupExisting(groupId);
         List<UserApiResponse> userList = List.of();
-        if (userEntity.getGroupId() != null) {
-            userList = userRepository.findAllUsersByGroup(userEntity.getGroupId()).stream()
-                    .map(mapper::toResponse)
-                    .toList();
-        }
+        userList = userRepository.findAllUsersByGroup(groupId).stream()
+                .map(mapper::toResponse)
+                .toList();
+
         return userList;
     }
 }

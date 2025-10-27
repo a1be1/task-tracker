@@ -19,8 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_EXIST;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -38,7 +37,7 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
         UserEntity userEntity = buildUserEntity();
         userRepository.save(userEntity);
         Integer userId = userEntity.getId();
-        Integer requestingUserId = createRequestingUser();
+        Integer requestingUserId = createUser();
         String url = UriComponentsBuilder
                 .fromUriString(UserController.USER_URL + "/" + userId)
                 .queryParam("requestingUserId", requestingUserId)
@@ -54,7 +53,7 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserNotExist_getUser() {
         //prepare
-        Integer requestingUserId = createRequestingUser();
+        Integer requestingUserId = createUser();
         UserEntity userEntity = buildUserEntity();
         userRepository.save(userEntity);
         Integer userId = userEntity.getId() + 1;
@@ -75,7 +74,7 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserIsNull_getUser() {
         //prepare
-        Integer requestingUserId = createRequestingUser();
+        Integer requestingUserId = createUser();
         Integer userId = null;
         String url = UriComponentsBuilder
                 .fromUriString(UserController.USER_URL + "/" + userId)
@@ -88,49 +87,7 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         Assertions.assertNotNull(response);
-        assertThat(response.errorMessage()).isEqualTo(USER_NOT_SPECIFIED);
-    }
-
-    @Test
-    void whenRequestingUserNotExist_getUser() {
-        //prepare
-        UserEntity userEntity = buildUserEntity();
-        userRepository.save(userEntity);
-        Integer userId = userEntity.getId();
-        Integer requestingUserId = createRequestingUser() + 1;
-        String url = UriComponentsBuilder
-                .fromUriString(UserController.USER_URL + "/" + userId)
-                .queryParam("requestingUserId", requestingUserId)
-                .build().toString();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        Assertions.assertNotNull(response);
-        assertThat(response.errorMessage()).isEqualTo(String.format(USER_NOT_EXIST, requestingUserId));
-    }
-
-    @Test
-    void whenRequestingUserIsNull_gerUser() {
-        //prepare
-        UserEntity userEntity = buildUserEntity();
-        userRepository.save(userEntity);
-        Integer userId = userEntity.getId();
-        Integer requestingUserId = null;
-        String url = UriComponentsBuilder
-                .fromUriString(UserController.USER_URL + "/" + userId)
-                .queryParam("requestingUserId", requestingUserId)
-                .build().toString();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        Assertions.assertNotNull(response);
-        assertThat(response.errorMessage()).isEqualTo(USER_NOT_SPECIFIED);
+        assertThat(response.errorMessage()).isEqualTo(ID_HAS_INVALID_FORMAT);
     }
 
     @Test
@@ -148,7 +105,7 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
 
         String url = UriComponentsBuilder
                 .fromUriString(UserController.USER_URL)
-                .queryParam("userId", ownerId)
+                .queryParam("groupId", groupId)
                 .toUriString();
         //execute
         ResponseEntity<List<UserApiResponse>> responseEntity =
@@ -168,61 +125,15 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
                 toApiResponse(memberGroup)));
     }
 
-
     @Test
-    void whenUserDoesNotHaveGroup_getAllUsers() {
+    void whenGroupNotExist_getAllUsers() {
         //prepare
-        UserEntity user = buildUserEntity();
-        userRepository.save(user);
-        Integer userId = user.getId();
+        Integer ownerId = createUser();
+        Integer groupId = createGroup(ownerId) + 1;
 
         String url = UriComponentsBuilder
                 .fromUriString(UserController.USER_URL)
-                .queryParam("userId", userId)
-                .toUriString();
-        //execute
-        ResponseEntity<List<UserApiResponse>> responseEntity =
-                client.exchange(
-                        url,
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<List<UserApiResponse>>() {
-                        }
-                );
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<UserApiResponse> response = responseEntity.getBody();
-        assertThat(response).isEmpty();
-    }
-
-    @Test
-    void whenUserNotExist_getAllUsers() {
-        //prepare
-        UserEntity user = buildUserEntity();
-        userRepository.save(user);
-        Integer userId = user.getId() + 1;
-
-        String url = UriComponentsBuilder
-                .fromUriString(UserController.USER_URL)
-                .queryParam("userId", userId)
-                .toUriString();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(String.format(USER_NOT_EXIST, userId));
-    }
-
-    @Test
-    void whenUserIsNull_getAllUsers() {
-        //prepare
-        Integer userId = null;
-
-        String url = UriComponentsBuilder
-                .fromUriString(UserController.USER_URL)
-                .queryParam("userId", userId)
+                .queryParam("groupId", groupId)
                 .toUriString();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
@@ -230,7 +141,25 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(USER_NOT_SPECIFIED);
+        assertThat(response.errorMessage()).isEqualTo(String.format(GROUP_NOT_EXIST, groupId));
+    }
+
+    @Test
+    void whenGroupIsNull_getAllUsers() {
+        //prepare
+        Integer groupId = null;
+
+        String url = UriComponentsBuilder
+                .fromUriString(UserController.USER_URL)
+                .queryParam("groupId", groupId)
+                .toUriString();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(ID_HAS_INVALID_FORMAT);
     }
 
     private UserEntity buildUserEntity() {
@@ -244,7 +173,7 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
         return userEntity;
     }
 
-    private Integer createRequestingUser() {
+    private Integer createUser() {
         UserEntity userEntity = new UserEntity();
         userEntity.setName("user name");
         userEntity.setAdmin(false);
