@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 
 @Validated
 @RestController
@@ -31,27 +31,22 @@ public class UserController {
 
     @GetMapping(USER_URL + "/{userId}")
     public UserApiResponse getUser(@NotNull(message = USER_NOT_SPECIFIED)
-                                   @PathVariable String userId,
-                                   @NotNull(message = USER_NOT_SPECIFIED)
-                                   @RequestParam(name = "requestingUserId", required = false)
-                                   String requestingUserId) {
-        return userGetService.getUser(parseId(userId), parseId(requestingUserId));
+                                   @PathVariable String userId) {
+        return userGetService.getUser(parseId(userId));
     }
 
     @GetMapping(USER_URL)
-    public List<UserApiResponse> getUsers(@NotNull(message = USER_NOT_SPECIFIED)
-                                          @RequestParam(name = "userId", required = false)
-                                          String userId) {
-        return userGetService.getUsers(parseId(userId));
+    public List<UserApiResponse> getUsers(@NotNull(message = GROUP_NOT_SPECIFIED)
+                                          @RequestParam(name = "groupId", required = false)
+                                          String groupId) {
+        return userGetService.getUsers(parseId(groupId));
     }
 
     private Integer parseId(String stringId) {
-        Integer id = null;
         try {
-            id = Integer.parseInt(stringId);
+            return Integer.parseInt(stringId);
         } catch (NumberFormatException exception) {
-            exception.getMessage();
+            throw new NumberFormatException(ID_HAS_INVALID_FORMAT);
         }
-        return id;
     }
 }

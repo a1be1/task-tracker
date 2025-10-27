@@ -18,7 +18,7 @@ public class UserCreateService {
     private final UserValidateService validateService;
 
     public UserApiResponse createUser(CreateUserApiRequest apiRequest) {
-        validateService.validateUserCreation(apiRequest);
+        validateService.validateGroupExisting(apiRequest.getGroupId());
         UserEntity userEntity = userFactory.createUser(apiRequest);
         userRepository.save(userEntity);
         return mapper.toResponse(userEntity);

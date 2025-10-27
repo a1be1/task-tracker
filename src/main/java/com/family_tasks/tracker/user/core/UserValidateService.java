@@ -17,8 +17,7 @@ public class UserValidateService {
     @Autowired
     private UserRepository userRepository;
 
-    void validateUserCreation(CreateUserApiRequest apiRequest) {
-        Integer groupId = apiRequest.getGroupId();
+    void validateGroupExisting(Integer groupId) {
         if (groupId != null && !groupRepository.existByGroupId(groupId)) {
             throw new IllegalArgumentException(String.format(GROUP_NOT_EXIST, groupId));
         }

@@ -26,4 +26,6 @@ public interface ValidationMessage {
     String GROUP_OWNER_NOT_SPECIFIED = "An owner isn't specified.";
     String USER_ALREADY_IS_OWNER = "User with id %d is already the owner of another group.";
     String GROUP_NOT_EXIST = "Group with id %d doesn't exist";
+    String ID_HAS_INVALID_FORMAT = "The provided ID has an invalid format";
+    String GROUP_NOT_SPECIFIED = "A group isn't specified";
 }
