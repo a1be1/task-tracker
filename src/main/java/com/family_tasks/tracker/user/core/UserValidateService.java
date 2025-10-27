@@ -3,7 +3,6 @@ package com.family_tasks.tracker.user.core;
 import com.family_tasks.tracker.common.error.exception.NotFoundException;
 import com.family_tasks.tracker.group.infrastructure.GroupRepository;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
-import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

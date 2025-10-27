@@ -88,7 +88,7 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(USER_NOT_SPECIFIED);
+        assertThat(response.errorMessage()).isEqualTo(ID_HAS_INVALID_FORMAT);
     }
 
 

@@ -23,7 +23,7 @@ public class UserUpdateService {
 
     public UserApiResponse updateUser(Integer id, UserUpdateApiRequest request) {
         validateService.validateUserExisting(id);
-        validateService.validateUserUpdating(request);
+        validateService.validateGroupExisting(request.getGroupId());
 
         Optional<UserEntity> fromDB = userRepository.findById(id);
 

@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
+import static com.family_tasks.tracker.common.utils.ValidateUtils.parseId;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.GROUP_NOT_SPECIFIED;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
 
 @Validated
 @RestController
@@ -50,13 +52,5 @@ public class UserController {
                                           @RequestParam(name = "groupId", required = false)
                                           String groupId) {
         return userGetService.getUsers(parseId(groupId));
-    }
-
-    private Integer parseId(String stringId) {
-        try {
-            return Integer.parseInt(stringId);
-        } catch (NumberFormatException exception) {
-            throw new NumberFormatException(ID_HAS_INVALID_FORMAT);
-        }
     }
 }
