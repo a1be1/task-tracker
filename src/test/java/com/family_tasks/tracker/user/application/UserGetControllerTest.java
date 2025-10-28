@@ -37,10 +37,8 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
         UserEntity userEntity = buildUserEntity();
         userRepository.save(userEntity);
         Integer userId = userEntity.getId();
-        Integer requestingUserId = createUser();
         String url = UriComponentsBuilder
                 .fromUriString(UserController.USER_URL + "/" + userId)
-                .queryParam("requestingUserId", requestingUserId)
                 .build().toString();
         //execute
         ResponseEntity<UserApiResponse> responseEntity = client.getForEntity(url, UserApiResponse.class);
@@ -53,13 +51,11 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserNotExist_getUser() {
         //prepare
-        Integer requestingUserId = createUser();
         UserEntity userEntity = buildUserEntity();
         userRepository.save(userEntity);
         Integer userId = userEntity.getId() + 1;
         String url = UriComponentsBuilder
                 .fromUriString(UserController.USER_URL + "/" + userId)
-                .queryParam("requestingUserId", requestingUserId)
                 .build().toString();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
@@ -74,11 +70,9 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserIsNull_getUser() {
         //prepare
-        Integer requestingUserId = createUser();
         Integer userId = null;
         String url = UriComponentsBuilder
                 .fromUriString(UserController.USER_URL + "/" + userId)
-                .queryParam("requestingUserId", requestingUserId)
                 .build().toString();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
