@@ -1,8 +1,8 @@
 package com.family_tasks.tracker.user.core;
 
-import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
+import com.family_tasks.tracker.user.model.dto.UserCreateApiRequest;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
-import com.family_tasks.tracker.user.model.mapper.UserMapper;
+import com.family_tasks.tracker.user.model.mapper.UserCreateMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserFactory {
 
-    private final UserMapper mapper;
+    private final UserCreateMapper mapper;
 
-    public UserEntity createUser(CreateUserApiRequest request) {
+    public UserEntity createUser(UserCreateApiRequest request) {
         log.info("Creating a new user. Request: {}", request);
         UserEntity entity = mapper.toEntity(request);
         log.info("Creating a new user. Result: {}", entity);

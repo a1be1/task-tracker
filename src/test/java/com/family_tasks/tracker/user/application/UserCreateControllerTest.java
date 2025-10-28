@@ -6,8 +6,8 @@ import com.family_tasks.tracker.common.utils.TimeUtils;
 import com.family_tasks.tracker.group.infrastructure.GroupRepository;
 import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
-import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
-import com.family_tasks.tracker.user.model.dto.CreateUserApiResponse;
+import com.family_tasks.tracker.user.model.dto.UserCreateApiRequest;
+import com.family_tasks.tracker.user.model.dto.UserApiResponse;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import com.family_tasks.tracker.utils.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link UserController}
  */
-class UserControllerTest extends AbstractIntegrationTest {
+class UserCreateControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
@@ -34,16 +34,17 @@ class UserControllerTest extends AbstractIntegrationTest {
     @Test
     void withoutGroup_createUser() {
         //prepare
-        CreateUserApiRequest request = buildRequest().build();
+        UserCreateApiRequest request = buildRequest().build();
         //execute
-        ResponseEntity<CreateUserApiResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, CreateUserApiResponse.class);
+        ResponseEntity<UserApiResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, UserApiResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        CreateUserApiResponse response = responseEntity.getBody();
+        UserApiResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.getUserId()).isNotNull();
         assertThat(response.getName()).isEqualTo(request.getName());
         assertThat(response.isAdmin()).isEqualTo(request.getAdmin());
+        assertThat(response.getGroupId()).isEqualTo(request.getGroupId());
 
         Integer userId = response.getUserId();
         assertThat(userRepository.findById(userId)).isNotNull();
@@ -54,18 +55,19 @@ class UserControllerTest extends AbstractIntegrationTest {
         //prepare
         Integer ownerId = createUser();
         Integer groupId = createGroup(ownerId);
-        CreateUserApiRequest request = buildRequest()
+        UserCreateApiRequest request = buildRequest()
                 .groupId(groupId)
                 .build();
         //execute
-        ResponseEntity<CreateUserApiResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, CreateUserApiResponse.class);
+        ResponseEntity<UserApiResponse> responseEntity = client.postForEntity(UserController.USER_URL, request, UserApiResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        CreateUserApiResponse response = responseEntity.getBody();
+        UserApiResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.getUserId()).isNotNull();
         assertThat(response.getName()).isEqualTo(request.getName());
         assertThat(response.isAdmin()).isEqualTo(request.getAdmin());
+        assertThat(response.getGroupId()).isEqualTo(request.getGroupId());
 
         Integer userId = response.getUserId();
         assertThat(userRepository.findById(userId)).isNotNull();
@@ -74,7 +76,7 @@ class UserControllerTest extends AbstractIntegrationTest {
     @Test
     void invalidUserName_createUser() {
         //prepare
-        CreateUserApiRequest request = buildRequest()
+        UserCreateApiRequest request = buildRequest()
                 .name(TestUtils.randomString(USER_NAME_MAX_LENGTH + 1))
                 .build();
         //execute
@@ -89,7 +91,7 @@ class UserControllerTest extends AbstractIntegrationTest {
     @Test
     void emptyUserName_createUser() {
         //prepare
-        CreateUserApiRequest request = buildRequest()
+        UserCreateApiRequest request = buildRequest()
                 .name(null)
                 .build();
         //execute
@@ -104,7 +106,7 @@ class UserControllerTest extends AbstractIntegrationTest {
     @Test
     void emptyIsAdmin_createUser() {
         //prepare
-        CreateUserApiRequest request = buildRequest()
+        UserCreateApiRequest request = buildRequest()
                 .admin(null)
                 .build();
         //execute
@@ -121,7 +123,7 @@ class UserControllerTest extends AbstractIntegrationTest {
         //prepare
         Integer ownerId = createUser();
         Integer groupId = createGroup(ownerId) + 2;
-        CreateUserApiRequest request = buildRequest()
+        UserCreateApiRequest request = buildRequest()
                 .groupId(groupId)
                 .build();
         //execute
@@ -133,8 +135,8 @@ class UserControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(String.format(GROUP_NOT_EXIST, groupId));
     }
 
-    private CreateUserApiRequest.CreateUserApiRequestBuilder buildRequest() {
-        return CreateUserApiRequest.builder()
+    private UserCreateApiRequest.UserCreateApiRequestBuilder buildRequest() {
+        return UserCreateApiRequest.builder()
                 .name("user1")
                 .admin(true)
                 .groupId(null);
@@ -155,6 +157,7 @@ class UserControllerTest extends AbstractIntegrationTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setName("user name");
         userEntity.setAdmin(false);
+        userEntity.setGroupId(null);
         userEntity.setCreatedAt(TimeUtils.now());
         userEntity.setUpdatedAt(TimeUtils.now());
         userRepository.save(userEntity);

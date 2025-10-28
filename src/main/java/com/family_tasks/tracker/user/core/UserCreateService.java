@@ -1,24 +1,24 @@
 package com.family_tasks.tracker.user.core;
 
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
-import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
-import com.family_tasks.tracker.user.model.dto.CreateUserApiResponse;
+import com.family_tasks.tracker.user.model.dto.UserApiResponse;
+import com.family_tasks.tracker.user.model.dto.UserCreateApiRequest;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
-import com.family_tasks.tracker.user.model.mapper.UserMapper;
+import com.family_tasks.tracker.user.model.mapper.UserCreateMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CreateUserService {
+public class UserCreateService {
 
     private final UserFactory userFactory;
     private final UserRepository userRepository;
-    private final UserMapper mapper;
+    private final UserCreateMapper mapper;
     private final UserValidateService validateService;
 
-    public CreateUserApiResponse createUser(CreateUserApiRequest apiRequest) {
-        validateService.validateUserCreation(apiRequest);
+    public UserApiResponse createUser(UserCreateApiRequest apiRequest) {
+        validateService.validateGroupExisting(apiRequest.getGroupId());
         UserEntity userEntity = userFactory.createUser(apiRequest);
         userRepository.save(userEntity);
         return mapper.toResponse(userEntity);
