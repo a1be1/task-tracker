@@ -1,8 +1,8 @@
 package com.family_tasks.tracker.user.core;
 
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
-import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
 import com.family_tasks.tracker.user.model.dto.UserApiResponse;
+import com.family_tasks.tracker.user.model.dto.UserCreateApiRequest;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import com.family_tasks.tracker.user.model.mapper.UserCreateMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class UserCreateService {
     private final UserCreateMapper mapper;
     private final UserValidateService validateService;
 
-    public UserApiResponse createUser(CreateUserApiRequest apiRequest) {
+    public UserApiResponse createUser(UserCreateApiRequest apiRequest) {
         validateService.validateGroupExisting(apiRequest.getGroupId());
         UserEntity userEntity = userFactory.createUser(apiRequest);
         userRepository.save(userEntity);

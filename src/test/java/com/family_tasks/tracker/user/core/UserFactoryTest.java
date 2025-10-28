@@ -1,6 +1,6 @@
 package com.family_tasks.tracker.user.core;
 
-import com.family_tasks.tracker.user.model.dto.CreateUserApiRequest;
+import com.family_tasks.tracker.user.model.dto.UserCreateApiRequest;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import com.family_tasks.tracker.user.model.mapper.UserCreateMapper;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ class UserFactoryTest {
 
     @Test
     void createUser() {
-        CreateUserApiRequest apiRequest = CreateUserApiRequest.builder()
+        UserCreateApiRequest apiRequest = UserCreateApiRequest.builder()
                 .name("Some user name")
                 .admin(true)
                 .groupId(1)

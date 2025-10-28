@@ -46,7 +46,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest().build();
         //execute
-        ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), TaskApiResponse.class);
+        ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                TaskApiResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         TaskApiResponse response = responseEntity.getBody();
@@ -70,7 +73,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .priority("INVALID_PRIORITY")
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -88,7 +94,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .priority(null)
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -106,7 +115,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .priority("")
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -124,7 +136,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .name("")
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -142,7 +157,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .name(null)
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -159,7 +177,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .name(randomString(TASK_NAME_MAX_LENGTH + 1))
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -176,7 +197,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .description(randomString(TASK_DESCRIPTION_MAX_LENGTH + 1))
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -193,7 +217,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .description(randomString(TASK_DESCRIPTION_MIN_LENGTH - 1))
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -211,7 +238,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .confidential(null)
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -229,7 +259,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .status("INVALID_STATUS")
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -247,7 +280,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .status(null)
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -265,7 +301,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .status("")
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
@@ -279,7 +318,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         String taskId = UUID.randomUUID().toString();
         TaskUpdateApiRequest request = buildUpdateRequest().build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         ;
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -300,7 +342,10 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .status("")
                 .build();
         //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(request), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
