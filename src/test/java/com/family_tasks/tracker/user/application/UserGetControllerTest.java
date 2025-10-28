@@ -122,8 +122,9 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenGroupNotExist_getAllUsers() {
         //prepare
-        Integer ownerId = createUser();
-        Integer groupId = createGroup(ownerId) + 1;
+        UserEntity owner = buildUserEntity();
+        userRepository.save(owner);
+        Integer groupId = createGroup(owner.getId()) + 1;
 
         String url = UriComponentsBuilder
                 .fromUriString(UserController.USER_URL)
@@ -165,17 +166,6 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
         userEntity.setUpdatedAt(LocalDateTime.now());
 
         return userEntity;
-    }
-
-    private Integer createUser() {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName("user name");
-        userEntity.setAdmin(false);
-        userEntity.setGroupId(null);
-        userEntity.setCreatedAt(LocalDateTime.now());
-        userEntity.setUpdatedAt(LocalDateTime.now());
-        userRepository.save(userEntity);
-        return userEntity.getId();
     }
 
     private UserApiResponse toApiResponse(UserEntity userEntity) {
