@@ -14,7 +14,7 @@ public interface ValidationMessage {
     String TASK_DESCRIPTION_TOO_LONG = "A task description length shouldn't be more than " + TASK_DESCRIPTION_MAX_LENGTH + ".";
     String TASK_DESCRIPTION_TOO_SHORT = "A task description length shouldn't be less than " + TASK_DESCRIPTION_MIN_LENGTH + ".";
     String TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED = "A task confidential status isn't specified.";
-    String TASK_DEADLINE_DATE_NOT_PRESENT_OR_FUTURE = "Date must be in future or present";
+    String TASK_DEADLINE_DATE_NOT_PRESENT_OR_FUTURE = "The deadline date must not be in the past";
     String TASK_PRIORITY_INVALID = "Invalid priority value. Please enter a valid priority.";
     String TASK_STATUS_INVALID = "Invalid status value. Please enter a valid status.";
     String TASK_STATUS_NULL = "Status must be specified";
