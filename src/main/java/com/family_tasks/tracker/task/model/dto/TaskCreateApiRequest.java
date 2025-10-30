@@ -3,7 +3,7 @@ package com.family_tasks.tracker.task.model.dto;
 import com.family_tasks.tracker.common.validation.annotation.ValidTaskPriority;
 import com.family_tasks.tracker.task.model.enums.TaskPriority;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -16,17 +16,8 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.family_tasks.tracker.common.validation.ValidationConstants.TASK_DESCRIPTION_MAX_LENGTH;
-import static com.family_tasks.tracker.common.validation.ValidationConstants.TASK_DESCRIPTION_MIN_LENGTH;
-import static com.family_tasks.tracker.common.validation.ValidationConstants.TASK_NAME_MAX_LENGTH;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_DEADLINE_DATE_NOT_FUTURE;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_DESCRIPTION_TOO_LONG;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_DESCRIPTION_TOO_SHORT;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_NAME_NOT_SPECIFIED;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_NAME_TOO_LONG;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_PRIORITY_NULL;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_REPORTER_NULL;
+import static com.family_tasks.tracker.common.validation.ValidationConstants.*;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 
 @Getter
 @Builder
@@ -62,6 +53,6 @@ public class TaskCreateApiRequest {
     private final Boolean confidential;
 
     @Schema(description = "The task deadline indicates when the task is expected to be completed.")
-    @Future(message = TASK_DEADLINE_DATE_NOT_FUTURE)
+    @FutureOrPresent(message = TASK_DEADLINE_DATE_NOT_PRESENT_OR_FUTURE)
     private final LocalDate deadline;
 }

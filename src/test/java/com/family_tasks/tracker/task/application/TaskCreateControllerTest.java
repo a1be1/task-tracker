@@ -174,7 +174,7 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
         //prepare
         Integer reporterId = createUser();
         TaskCreateApiRequest request = buildCreateRequest(reporterId)
-                .deadline(LocalDate.now())
+                .deadline(LocalDate.now().minusDays(1))
                 .build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
@@ -182,8 +182,9 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DEADLINE_DATE_NOT_FUTURE);
+        assertThat(response.errorMessage()).isEqualTo(TASK_DEADLINE_DATE_NOT_PRESENT_OR_FUTURE);
     }
+
 
     @Test
     void whenTaskConfidentialNull_createTask() {
@@ -257,7 +258,7 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
                 .reporterId(userId)
                 .executorIds(Set.of())
                 .confidential(true)
-                .deadline(LocalDate.now().plusDays(1));
+                .deadline(LocalDate.now());
     }
 
     private Integer createUser() {
