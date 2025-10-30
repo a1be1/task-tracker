@@ -14,7 +14,7 @@ public interface ValidationMessage {
     String TASK_DESCRIPTION_TOO_LONG = "A task description length shouldn't be more than " + TASK_DESCRIPTION_MAX_LENGTH + ".";
     String TASK_DESCRIPTION_TOO_SHORT = "A task description length shouldn't be less than " + TASK_DESCRIPTION_MIN_LENGTH + ".";
     String TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED = "A task confidential status isn't specified.";
-    String TASK_DEADLINE_DATE_NOT_FUTURE = "Date must be in future";
+    String TASK_DEADLINE_DATE_NOT_PRESENT_OR_FUTURE = "The deadline date must not be in the past";
     String TASK_PRIORITY_INVALID = "Invalid priority value. Please enter a valid priority.";
     String TASK_STATUS_INVALID = "Invalid status value. Please enter a valid status.";
     String TASK_STATUS_NULL = "Status must be specified";
@@ -28,4 +28,5 @@ public interface ValidationMessage {
     String GROUP_NOT_EXIST = "Group with id %d doesn't exist";
     String ID_HAS_INVALID_FORMAT = "The provided ID has an invalid format";
     String GROUP_NOT_SPECIFIED = "A group isn't specified";
+    String INCORRECT_REQUEST_FORMAT = "Incorrect request format. Check data types.";
 }
