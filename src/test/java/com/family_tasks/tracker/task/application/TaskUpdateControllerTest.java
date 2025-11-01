@@ -2,6 +2,8 @@ package com.family_tasks.tracker.task.application;
 
 import com.family_tasks.tracker.AbstractIntegrationTest;
 import com.family_tasks.tracker.common.error.ErrorResponse;
+import com.family_tasks.tracker.group.infrastructure.GroupRepository;
+import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskUpdateApiRequest;
@@ -11,6 +13,8 @@ import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -37,14 +41,20 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     TaskRepository taskRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    GroupRepository groupRepository;
 
-    @Test
-    void whenTaskExist_updateTask() {
+    @EnumSource(value = TaskPriority.class)
+    @ParameterizedTest
+    void whenTaskExistWithGivenPriority_updateTask(TaskPriority taskPriority) {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest().build();
+        TaskUpdateApiRequest request = buildUpdateRequest()
+                .priority(taskPriority.name())
+                .build();
         //execute
         ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
                 HttpMethod.PUT,
@@ -63,10 +73,40 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(response.getDeadline()).isEqualTo(request.getDeadline());
     }
 
+    @EnumSource(value = TaskStatus.class)
+    @ParameterizedTest
+    void whenTaskExistWithGivenStatus_updateTask(TaskStatus taskStatus) {
+        //prepare
+        UserEntity reporter = createUser();
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
+        taskRepository.save(taskEntity);
+        String taskId = taskEntity.getId();
+        TaskUpdateApiRequest request = buildUpdateRequest()
+                .status(taskStatus.name())
+                .build();
+        //execute
+        ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                TaskApiResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        TaskApiResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus().name()).isEqualTo(request.getStatus());
+        assertThat(response.getName()).isEqualTo(request.getName());
+        assertThat(response.getDescription()).isEqualTo(request.getDescription());
+        assertThat(response.getPriority().name()).isEqualTo(request.getPriority());
+        assertThat(response.getExecutorIds()).isEqualTo(request.getExecutorIds());
+        assertThat(response.isConfidential()).isEqualTo(request.getConfidential());
+        assertThat(response.getDeadline()).isEqualTo(request.getDeadline());
+    }
+
     @Test
     void whenPriorityInvalid_updateTask() {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -85,11 +125,49 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void whenPriorityNull_updateTask() {
+    void whenExecutorsFromAnotherGroup_updateTask() {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
+
+        UserEntity executor = createUser();
+        Integer executorGroupId = createGroup(executor.getId());
+        executor.setGroupId(executorGroupId);
+        userRepository.save(executor);
+
+        TaskUpdateApiRequest request = buildUpdateRequest()
+                .executorIds(Set.of(executor.getId()))
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(CREATE_OR_UPDATE_TASK_FOR_OWN_GROUP);
+    }
+
+    @Test
+    void whenPriorityNull_updateTask() {
+        //prepare
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
+        taskRepository.save(taskEntity);
+        String taskId = taskEntity.getId();
+
         TaskUpdateApiRequest request = buildUpdateRequest()
                 .priority(null)
                 .build();
@@ -108,7 +186,12 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenPriorityEmpty_updateTask() {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -129,7 +212,12 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenEmptyTaskName_updateTask() {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -150,7 +238,12 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskNameNull_updateTask() {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -170,7 +263,12 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
 
     @Test
     void whenTaskNameToLong_updateTask() {
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -190,7 +288,12 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
 
     @Test
     void whenTaskDescriptionToLong_updateTask() {
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -210,7 +313,12 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
 
     @Test
     void whenTaskDescriptionToShort_updateTask() {
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -231,7 +339,12 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskConfidentialNull_updateTask() {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -252,7 +365,12 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenStatusInvalid_updateTask() {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -273,7 +391,12 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenStatusNull_updateTask() {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -294,7 +417,12 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenStatusEmpty_updateTask() {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         TaskUpdateApiRequest request = buildUpdateRequest()
@@ -333,10 +461,11 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenExecutorNotExist_updateTask() {
         //prepare
-        TaskEntity taskEntity = buildTaskEntity();
+        UserEntity reporter = createUser();
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
-        Integer executorId = createUser() + 1;
+        Integer executorId = createUser().getId() + 1;
         TaskUpdateApiRequest request = buildUpdateRequest()
                 .executorIds(Set.of(executorId))
                 .status("")
@@ -353,14 +482,14 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(TASK_STATUS_NULL);
     }
 
-    private Integer createUser() {
+    private UserEntity createUser() {
         UserEntity userEntity = new UserEntity();
         userEntity.setName("user name");
         userEntity.setAdmin(false);
         userEntity.setCreatedAt(LocalDateTime.now());
         userEntity.setUpdatedAt(LocalDateTime.now());
         userRepository.save(userEntity);
-        return userEntity.getId();
+        return userEntity;
     }
 
     private TaskUpdateApiRequest.TaskUpdateApiRequestBuilder buildUpdateRequest() {
@@ -374,14 +503,14 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .status(TaskStatus.CANCELLED.name());
     }
 
-    private TaskEntity buildTaskEntity() {
+    private TaskEntity buildTaskEntity(Integer reporterId) {
 
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setId(UUID.randomUUID().toString());
         taskEntity.setName("Name of task");
         taskEntity.setDescription("Description of task");
         taskEntity.setPriority((TaskPriority.HIGH.name()));
-        taskEntity.setReporterId(createUser());
+        taskEntity.setReporterId(reporterId);
         taskEntity.setExecutorIds(Set.of());
         taskEntity.setConfidential(false);
         taskEntity.setDeadline(LocalDate.now().plusDays(1));
@@ -390,5 +519,16 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         taskEntity.setStatus(TaskStatus.TO_DO.name());
 
         return taskEntity;
+    }
+
+    private Integer createGroup(Integer ownerId) {
+        GroupEntity groupEntity = GroupEntity.builder()
+                .ownerId(ownerId)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deletedAt(null)
+                .build();
+        groupRepository.save(groupEntity);
+        return groupEntity.getId();
     }
 }

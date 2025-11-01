@@ -21,7 +21,7 @@ public class TaskUpdateService {
     private final TaskValidateService validateService;
 
     public TaskApiResponse updateTask(String id, TaskUpdateApiRequest apiRequest) {
-        validateService.validateTaskUpdating(apiRequest);
+        validateService.validateTaskUpdating(apiRequest, id);
         Optional<TaskEntity> fromDB = taskRepository.findById(id);
 
         return fromDB.map(task -> {
