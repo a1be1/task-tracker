@@ -16,8 +16,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
-import static com.family_tasks.tracker.common.validation.ValidationMessage.GROUP_OWNER_NOT_SPECIFIED;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_ALREADY_IS_OWNER;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 import static com.family_tasks.tracker.group.application.GroupController.GROUP_URL;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +32,7 @@ public class GroupCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void createGroup() {
         //prepare
-        Integer ownerId = createUser();
+        Integer ownerId = createUser().getId();
         GroupCreateApiRequest request = GroupCreateApiRequest.builder()
                 .ownerId(ownerId)
                 .build();
@@ -49,6 +48,31 @@ public class GroupCreateControllerTest extends AbstractIntegrationTest {
 
         GroupEntity groupEntity = groupRepository.findById(response.getGroupId()).orElseThrow();
         assertThat(groupEntity).isNotNull();
+    }
+
+    @Test
+    void whenUserIsMemberOfAnotherGroup_createGroup() {
+        //prepare
+        UserEntity owner = createUser();
+        GroupEntity group = createGroupEntity(owner.getId());
+        groupRepository.save(group);
+        owner.setGroupId(group.getId());
+        userRepository.save(owner);
+
+        UserEntity user = createUser();
+        user.setGroupId(group.getId());
+        userRepository.save(user);
+
+        GroupCreateApiRequest request = GroupCreateApiRequest.builder()
+                .ownerId(user.getId())
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(GROUP_URL, request, ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(USER_ALREADY_HAS_GROUP);
     }
 
     @Test
@@ -69,12 +93,15 @@ public class GroupCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenOwnerAlreadyHasGroup_createGroup() {
         //prepare
-        Integer ownerId = createUser();
-        GroupEntity groupEntity = createGroupEntity(ownerId);
+        UserEntity owner = createUser();
+        GroupEntity groupEntity = createGroupEntity(owner.getId());
         groupRepository.save(groupEntity);
+        owner.setGroupId(groupEntity.getId());
+        userRepository.save(owner);
+
 
         GroupCreateApiRequest request = GroupCreateApiRequest.builder()
-                .ownerId(ownerId)
+                .ownerId(owner.getId())
                 .build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(GROUP_URL, request, ErrorResponse.class);
@@ -82,7 +109,7 @@ public class GroupCreateControllerTest extends AbstractIntegrationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(String.format(USER_ALREADY_IS_OWNER, ownerId));
+        assertThat(response.errorMessage()).isEqualTo(String.format(USER_ALREADY_IS_OWNER, owner.getId()));
     }
 
     private GroupEntity createGroupEntity(Integer ownerId) {
@@ -94,13 +121,14 @@ public class GroupCreateControllerTest extends AbstractIntegrationTest {
                 .build();
     }
 
-    private Integer createUser() {
+    private UserEntity createUser() {
         UserEntity userEntity = new UserEntity();
         userEntity.setName("user name");
         userEntity.setAdmin(false);
         userEntity.setCreatedAt(TimeUtils.now());
         userEntity.setUpdatedAt(TimeUtils.now());
+        userEntity.setGroupId(null);
         userRepository.save(userEntity);
-        return userEntity.getId();
+        return userEntity;
     }
 }

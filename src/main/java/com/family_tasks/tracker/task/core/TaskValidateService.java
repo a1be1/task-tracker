@@ -1,43 +1,51 @@
 package com.family_tasks.tracker.task.core;
 
 import com.family_tasks.tracker.common.error.exception.NotFoundException;
+import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
 import com.family_tasks.tracker.task.model.dto.TaskUpdateApiRequest;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
+import com.family_tasks.tracker.user.model.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
-import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_EXIST;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 
 @Service
 public class TaskValidateService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TaskRepository taskRepository;
 
     void validateTaskCreation(TaskCreateApiRequest apiRequest) {
-        Set<Integer> userIds = new HashSet<>();
-        userIds.add(apiRequest.getReporterId());
-        userIds.addAll(apiRequest.getExecutorIds());
+        UserEntity reporter = userRepository.findById(apiRequest.getReporterId())
+                .orElseThrow(() -> new IllegalArgumentException(String.format(USER_NOT_EXIST, apiRequest.getReporterId())));
 
-        for (Integer id : userIds) {
-            if (!userRepository.existsById(id)) {
-                throw new IllegalArgumentException(String.format(USER_NOT_EXIST, id));
-            }
+        if (reporter.getGroupId() == null) {
+            throw new IllegalArgumentException(CREATE_TASK_WITHOUT_GROUP);
         }
+        checkUserGroup(apiRequest.getExecutorIds(), reporter.getGroupId());
     }
 
-    void validateTaskUpdating(TaskUpdateApiRequest apiRequest) {
-        for (Integer id : apiRequest.getExecutorIds()) {
-            if (!userRepository.existsById(id)) {
-                throw new IllegalArgumentException(String.format(USER_NOT_EXIST, id));
-            }
-        }
+    void validateTaskUpdating(TaskUpdateApiRequest apiRequest, String id) {
+        TaskEntity taskEntity = taskRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(String.format(TASK_NOT_EXIST, id)));
+
+        Integer reporterId = taskEntity.getReporterId();
+        UserEntity reporter = userRepository.findById(reporterId)
+                .orElseThrow(() -> new IllegalArgumentException(String.format(USER_NOT_EXIST, reporterId)));
+
+        Integer groupId = reporter.getGroupId();
+        Set<Integer> userIds = new HashSet<>(apiRequest.getExecutorIds());
+
+        checkUserGroup(userIds, groupId);
     }
 
     void validateTaskGetting(Integer userId, TaskEntity taskEntity) {
@@ -59,6 +67,16 @@ public class TaskValidateService {
 
         if (!userRepository.existsById(userId)) {
             throw NotFoundException.userNotFound(userId);
+        }
+    }
+
+    private void checkUserGroup(Set<Integer> executorIds, Integer groupId) {
+        for (Integer userId : executorIds) {
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException(String.format(USER_NOT_EXIST, userId)));
+            if (!Objects.equals(user.getGroupId(), groupId)) {
+                throw new IllegalArgumentException(CREATE_OR_UPDATE_TASK_FOR_OWN_GROUP);
+            }
         }
     }
 }

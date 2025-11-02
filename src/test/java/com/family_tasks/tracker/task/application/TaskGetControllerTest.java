@@ -3,6 +3,8 @@ package com.family_tasks.tracker.task.application;
 import com.family_tasks.tracker.AbstractIntegrationTest;
 import com.family_tasks.tracker.common.error.ErrorResponse;
 import com.family_tasks.tracker.common.utils.TimeUtils;
+import com.family_tasks.tracker.group.infrastructure.GroupRepository;
+import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
@@ -38,6 +40,8 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     TaskRepository taskRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    GroupRepository groupRepository;
 
     @AfterEach
     void tearDown() {
@@ -47,13 +51,17 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskExist_getTask() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL + "/" + taskId)
-                .queryParam("userId", userId)
+                .queryParam("userId", user.getId())
                 .toUriString();
         //execute
         ResponseEntity<TaskApiResponse> responseEntity = client.getForEntity(url, TaskApiResponse.class);
@@ -66,14 +74,18 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenIsConfidentialTrueForReporter_getTask() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL + "/" + taskId)
-                .queryParam("userId", userId)
+                .queryParam("userId", user.getId())
                 .toUriString();
         //execute
         ResponseEntity<TaskApiResponse> responseEntity = client.getForEntity(url, TaskApiResponse.class);
@@ -86,16 +98,23 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenIsConfidentialTrueForExecutor_getTask() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
-        Integer executorId = createUser();
-        taskEntity.setExecutorIds(Set.of(executorId));
+        UserEntity executorId = createUser();
+        executorId.setGroupId(groupId);
+        userRepository.save(executorId);
+
+        taskEntity.setExecutorIds(Set.of(executorId.getId()));
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL + "/" + taskId)
-                .queryParam("userId", userId)
+                .queryParam("userId", user.getId())
                 .toUriString();
         //execute
         ResponseEntity<TaskApiResponse> responseEntity = client.getForEntity(url, TaskApiResponse.class);
@@ -108,15 +127,24 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenIsConfidentialWithoutPermission_getTask() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
-        Integer userIdWithoutPermission = createUser();
+
+        UserEntity userIdWithoutPermission = createUser();
+        userIdWithoutPermission.setGroupId(groupId);
+        userRepository.save(userIdWithoutPermission);
+
+
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL + "/" + taskId)
-                .queryParam("userId", userIdWithoutPermission)
+                .queryParam("userId", userIdWithoutPermission.getId())
                 .toUriString();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
@@ -130,11 +158,15 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserNotExist_getTask() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
-        Integer notExistingUserId = createUser() + 2;
+        Integer notExistingUserId = createUser().getId() + 2;
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL + "/" + taskId)
                 .queryParam("userId", notExistingUserId)
@@ -151,9 +183,14 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserNull_getTask() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskRepository.save(taskEntity);
+
         String taskId = taskEntity.getId();
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL + "/" + taskId)
@@ -171,13 +208,17 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskNotExist_getTask() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId() + 1;
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL + "/" + taskId)
-                .queryParam("userId", userId)
+                .queryParam("userId", user.getId())
                 .toUriString();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
@@ -191,15 +232,22 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenIsConfidentialFalse_getAllTask() {
         //prepare
-        Integer firstUserId = createUser();
-        Integer secondUserId = createUser();
-        TaskEntity taskEntityFirst = buildTaskEntity(firstUserId);
-        TaskEntity taskEntitySecond = buildTaskEntity(secondUserId);
+        UserEntity firstUser = createUser();
+        Integer groupId = createGroup(firstUser.getId());
+        firstUser.setGroupId(groupId);
+        userRepository.save(firstUser);
+
+        UserEntity secondUser = createUser();
+        secondUser.setGroupId(groupId);
+        userRepository.save(secondUser);
+
+        TaskEntity taskEntityFirst = buildTaskEntity(firstUser.getId());
+        TaskEntity taskEntitySecond = buildTaskEntity(secondUser.getId());
         taskRepository.save(taskEntityFirst);
         taskRepository.save(taskEntitySecond);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", firstUserId)
+                .queryParam("userId", firstUser.getId())
                 .queryParam("filter", TaskFilter.ALL_AVAILABLE.name())
                 .toUriString();
         //execute
@@ -219,15 +267,54 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void whenUserFromAnotherGroup_getAllTask() {
+        //prepare
+        UserEntity firstUser = createUser();
+        Integer firstGroupId = createGroup(firstUser.getId());
+        firstUser.setGroupId(firstGroupId);
+        userRepository.save(firstUser);
+
+        UserEntity secondUser = createUser();
+        Integer secondGroupId = createGroup(secondUser.getId());
+        secondUser.setGroupId(secondGroupId);
+        userRepository.save(secondUser);
+
+        TaskEntity taskEntityFirst = buildTaskEntity(firstUser.getId());
+        taskRepository.save(taskEntityFirst);
+        String url = UriComponentsBuilder
+                .fromUriString(TaskController.TASK_URL)
+                .queryParam("userId", secondUser.getId())
+                .queryParam("filter", TaskFilter.ALL_AVAILABLE.name())
+                .toUriString();
+        //execute
+        ResponseEntity<List<TaskApiResponse>> responseEntity =
+                client.exchange(
+                        url,
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        }
+                );
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        List<TaskApiResponse> response = responseEntity.getBody();
+        assertThat(response.isEmpty());
+    }
+
+    @Test
     void whenIsConfidentialTrueUndUserIsReporter_getAllTasks() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", userId)
+                .queryParam("userId", user.getId())
                 .queryParam("filter", TaskFilter.ALL_AVAILABLE.name())
                 .toUriString();
         //execute
@@ -249,15 +336,22 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenIsConfidentialTrueUndUserIsExecutor_getAllTasks() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        UserEntity executorId = createUser();
+        executorId.setGroupId(groupId);
+        userRepository.save(executorId);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
-        Integer executorId = createUser();
-        taskEntity.setExecutorIds(Set.of(executorId));
+        taskEntity.setExecutorIds(Set.of(executorId.getId()));
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", executorId)
+                .queryParam("userId", executorId.getId())
                 .queryParam("filter", TaskFilter.ALL_AVAILABLE.name())
                 .toUriString();
         //execute
@@ -279,14 +373,22 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenIsConfidentialTrueUndUserDoesNotHavePermission_getAllTasks() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
         taskRepository.save(taskEntity);
-        Integer userIdWithoutPermission = createUser();
+
+        UserEntity userIdWithoutPermission = createUser();
+        userIdWithoutPermission.setGroupId(groupId);
+        userRepository.save(userIdWithoutPermission);
+
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", userIdWithoutPermission)
+                .queryParam("userId", userIdWithoutPermission.getId())
                 .queryParam("filter", TaskFilter.ALL_AVAILABLE.name())
                 .toUriString();
         //execute
@@ -308,15 +410,23 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskIsCancelled_getAllTasks() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
         taskEntity.setStatus("CANCELLED");
         taskRepository.save(taskEntity);
-        Integer userIdWithoutPermission = createUser();
+
+        UserEntity userIdWithoutPermission = createUser();
+        userIdWithoutPermission.setGroupId(groupId);
+        userRepository.save(userIdWithoutPermission);
+
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", userIdWithoutPermission)
+                .queryParam("userId", userIdWithoutPermission.getId())
                 .queryParam("filter", TaskFilter.ALL_CLOSED.name())
                 .toUriString();
         //execute
@@ -336,16 +446,58 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void whenTaskIsCancelledAndUsersFromAnotherGroup_getAllTasks() {
+        //prepare
+        UserEntity firstUser = createUser();
+        Integer firstGroupId = createGroup(firstUser.getId());
+        firstUser.setGroupId(firstGroupId);
+        userRepository.save(firstUser);
+
+        UserEntity secondUser = createUser();
+        Integer secondGroupId = createGroup(secondUser.getId());
+        secondUser.setGroupId(secondGroupId);
+        userRepository.save(secondUser);
+
+        TaskEntity taskEntity = buildTaskEntity(firstUser.getId());
+        taskEntity.setConfidential(true);
+        taskEntity.setStatus("CANCELLED");
+        taskRepository.save(taskEntity);
+
+        String url = UriComponentsBuilder
+                .fromUriString(TaskController.TASK_URL)
+                .queryParam("userId", secondUser.getId())
+                .queryParam("filter", TaskFilter.ALL_CLOSED.name())
+                .toUriString();
+        //execute
+        ResponseEntity<List<TaskApiResponse>> responseEntity =
+                client.exchange(
+                        url,
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        }
+                );
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        List<TaskApiResponse> response = responseEntity.getBody();
+        assertThat(response.isEmpty());
+    }
+
+    @Test
     void whenUserIsReporterGetActiveTaskAndTaskStatusToDo_getAllTasks() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
         taskEntity.setStatus("TO_DO");
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", userId)
+                .queryParam("userId", user.getId())
                 .queryParam("filter", TaskFilter.IS_REPORTER_ACTIVE_TASK.name())
                 .toUriString();
         //execute
@@ -367,14 +519,18 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserIsReporterGetActiveTaskAndTaskStatusInProgress_getAllTasks() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
         taskEntity.setStatus("IN_PROGRESS");
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", userId)
+                .queryParam("userId", user.getId())
                 .queryParam("filter", TaskFilter.IS_REPORTER_ACTIVE_TASK.name())
                 .toUriString();
         //execute
@@ -396,14 +552,18 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserIsReporterGetACompletedTask_getAllTasks() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
         taskEntity.setStatus("COMPLETED");
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", userId)
+                .queryParam("userId", user.getId())
                 .queryParam("filter", TaskFilter.IS_REPORTER_COMPLETED_TASK.name())
                 .toUriString();
         //execute
@@ -426,16 +586,21 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserIsExecutorGetActiveTaskAndTaskStatusToDo_getAllTasks() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
         taskEntity.setStatus("TO_DO");
-        Integer executorId = createUser();
-        taskEntity.setExecutorIds(Set.of(executorId));
+
+        UserEntity executorId = createUser();
+        taskEntity.setExecutorIds(Set.of(executorId.getId()));
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", executorId)
+                .queryParam("userId", executorId.getId())
                 .queryParam("filter", TaskFilter.IS_EXECUTOR_ACTIVE_TASK.name())
                 .toUriString();
         //execute
@@ -457,16 +622,20 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserIsExecutorGetActiveTaskAndTaskStatusInProgress_getAllTasks() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
         taskEntity.setStatus("IN_PROGRESS");
-        Integer executorId = createUser();
-        taskEntity.setExecutorIds(Set.of(executorId));
+        UserEntity executorId = createUser();
+        taskEntity.setExecutorIds(Set.of(executorId.getId()));
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", executorId)
+                .queryParam("userId", executorId.getId())
                 .queryParam("filter", TaskFilter.IS_EXECUTOR_ACTIVE_TASK.name())
                 .toUriString();
         //execute
@@ -488,16 +657,20 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserIsExecutorGetACompletedTask_getAllTasks() {
         //prepare
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskEntity.setConfidential(true);
         taskEntity.setStatus("COMPLETED");
-        Integer executorId = createUser();
-        taskEntity.setExecutorIds(Set.of(executorId));
+        UserEntity executorId = createUser();
+        taskEntity.setExecutorIds(Set.of(executorId.getId()));
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", executorId)
+                .queryParam("userId", executorId.getId())
                 .queryParam("filter", TaskFilter.IS_EXECUTOR_COMPLETED_TASK.name())
                 .toUriString();
         //execute
@@ -518,9 +691,13 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
 
     @Test
     void whenUserDoesNotExist_getAllTasks() {
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(createUser());
-        Integer notExistUserId = createUser() + 2;
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(createUser().getId());
+        Integer notExistUserId = createUser().getId() + 2;
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
@@ -530,7 +707,7 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
         //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.errorMessage()).isEqualTo(String.format(USER_NOT_EXIST, notExistUserId));
@@ -538,8 +715,12 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
 
     @Test
     void whenUserIsNull_getAllTasks() {
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         Integer notExistUserId = null;
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
@@ -558,12 +739,16 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
 
     @Test
     void whenTaskFilterDoesNotExist_getAllTasks() {
-        Integer userId = createUser();
-        TaskEntity taskEntity = buildTaskEntity(userId);
+        UserEntity user = createUser();
+        Integer groupId = createGroup(user.getId());
+        user.setGroupId(groupId);
+        userRepository.save(user);
+
+        TaskEntity taskEntity = buildTaskEntity(user.getId());
         taskRepository.save(taskEntity);
         String url = UriComponentsBuilder
                 .fromUriString(TaskController.TASK_URL)
-                .queryParam("userId", userId)
+                .queryParam("userId", user.getId())
                 .queryParam("filter", "FilterNotExist")
                 .toUriString();
         //execute
@@ -575,14 +760,14 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(TASK_FILTER_INVALID);
     }
 
-    private Integer createUser() {
+    private UserEntity createUser() {
         UserEntity userEntity = new UserEntity();
         userEntity.setName("user name");
         userEntity.setAdmin(false);
         userEntity.setCreatedAt(LocalDateTime.now());
         userEntity.setUpdatedAt(LocalDateTime.now());
         userRepository.save(userEntity);
-        return userEntity.getId();
+        return userEntity;
     }
 
     private TaskEntity buildTaskEntity(Integer userId) {
@@ -617,5 +802,16 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
                 .createdAt(taskEntity.getCreatedAt())
                 .updatedAt(taskEntity.getUpdatedAt())
                 .build();
+    }
+
+    private Integer createGroup(Integer ownerId) {
+        GroupEntity groupEntity = GroupEntity.builder()
+                .ownerId(ownerId)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deletedAt(null)
+                .build();
+        groupRepository.save(groupEntity);
+        return groupEntity.getId();
     }
 }
