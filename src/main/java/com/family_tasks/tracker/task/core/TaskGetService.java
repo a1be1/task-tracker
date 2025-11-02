@@ -30,7 +30,6 @@ public class TaskGetService {
         Optional<TaskEntity> fromDB = taskRepository.findById(id);
         TaskEntity taskEntity = fromDB.orElseThrow(() -> NotFoundException.taskNotFound(id));
 
-        validateService.validateUserExisting(userId);
         validateService.validateTaskGetting(userId, taskEntity);
 
         return mapper.toResponse(taskEntity);
@@ -38,7 +37,6 @@ public class TaskGetService {
 
     public List<TaskApiResponse> getTasks(TaskFilterRequest taskFilterRequest) {
 
-        validateService.validateUserExisting(taskFilterRequest.getUserId());
         UserEntity user = userRepository.findById(taskFilterRequest.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException(String.format(USER_NOT_EXIST, taskFilterRequest.getUserId())));
         Integer groupId = user.getGroupId();

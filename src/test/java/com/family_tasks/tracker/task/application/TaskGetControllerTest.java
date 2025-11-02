@@ -707,7 +707,7 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.getForEntity(url, ErrorResponse.class);
         //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.errorMessage()).isEqualTo(String.format(USER_NOT_EXIST, notExistUserId));
