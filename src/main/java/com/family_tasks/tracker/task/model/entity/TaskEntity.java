@@ -35,6 +35,7 @@ public class TaskEntity {
     @Column(name = "user_id")
     private Set<Integer> executorIds = new HashSet<>();
     private boolean confidential;
+    private Integer rewardsPoints;
     private LocalDate deadline;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -5,4 +5,5 @@ public interface TableNames {
     String TASKS_TABLE = "tasks";
     String EXECUTORS_TASKS_TABLE = "executors_tasks";
     String GROUPS = "groups";
+    String REWARDS = "rewards";
 }

@@ -32,4 +32,5 @@ public interface ValidationMessage {
     String INCORRECT_REQUEST_FORMAT = "Incorrect request format. Check data types.";
     String CREATE_TASK_WITHOUT_GROUP = "To create a task you need to join a group or create a new one.";
     String CREATE_OR_UPDATE_TASK_FOR_OWN_GROUP = "A task can be created or updated only for users from own group.";
+    String REWARDS_POINTS_POSITIVE = "Reward points cannot be negative.";
 }

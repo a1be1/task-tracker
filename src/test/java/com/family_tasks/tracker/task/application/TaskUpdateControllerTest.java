@@ -29,6 +29,7 @@ import java.util.UUID;
 import static com.family_tasks.tracker.common.validation.ValidationConstants.*;
 import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 import static com.family_tasks.tracker.task.application.TaskController.TASK_URL;
+import static com.family_tasks.tracker.utils.TestUtils.randomInt;
 import static com.family_tasks.tracker.utils.TestUtils.randomString;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,6 +72,7 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(response.getExecutorIds()).isEqualTo(request.getExecutorIds());
         assertThat(response.isConfidential()).isEqualTo(request.getConfidential());
         assertThat(response.getDeadline()).isEqualTo(request.getDeadline());
+        assertThat(response.getRewardsPoints()).isEqualTo(request.getRewardsPoints());
     }
 
     @EnumSource(value = TaskStatus.class)
@@ -100,6 +102,7 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(response.getExecutorIds()).isEqualTo(request.getExecutorIds());
         assertThat(response.isConfidential()).isEqualTo(request.getConfidential());
         assertThat(response.getDeadline()).isEqualTo(request.getDeadline());
+        assertThat(response.getRewardsPoints()).isEqualTo(request.getRewardsPoints());
     }
 
     @Test
@@ -482,6 +485,32 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(TASK_STATUS_NULL);
     }
 
+    @Test
+    void whenRewardsPointsZero_updateTask() {
+        //prepare
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        TaskEntity taskEntity = buildTaskEntity(reporter.getId());
+        taskRepository.save(taskEntity);
+        String taskId = taskEntity.getId();
+        TaskUpdateApiRequest request = buildUpdateRequest()
+                .rewardsPoints(0)
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
+                HttpMethod.PUT,
+                new HttpEntity<>(request),
+                ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(REWARDS_POINTS_POSITIVE);
+    }
+
     private UserEntity createUser() {
         UserEntity userEntity = new UserEntity();
         userEntity.setName("user name");
@@ -500,7 +529,8 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
                 .deadline(LocalDate.now().plusDays(1))
                 .executorIds(Set.of())
                 .priority(TaskPriority.LOW.name())
-                .status(TaskStatus.CANCELLED.name());
+                .status(TaskStatus.CANCELLED.name())
+                .rewardsPoints(randomInt(1, 100));
     }
 
     private TaskEntity buildTaskEntity(Integer reporterId) {
@@ -517,6 +547,7 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         taskEntity.setCreatedAt(LocalDateTime.now());
         taskEntity.setUpdatedAt(LocalDateTime.now());
         taskEntity.setStatus(TaskStatus.TO_DO.name());
+        taskEntity.setRewardsPoints(randomInt(1, 100));
 
         return taskEntity;
     }
