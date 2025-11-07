@@ -33,4 +33,5 @@ public interface ValidationMessage {
     String CREATE_OR_UPDATE_TASK_FOR_OWN_GROUP = "A task can be created or updated only for users from own group.";
     String REWARDS_POINTS_POSITIVE = "Reward points cannot be negative.";
     String VALIDATION_FAILED = "Validation failed";
+    String REWARD_NOT_EXIST = "Reward with id %s doesn't exist.";
 }

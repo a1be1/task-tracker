@@ -1,14 +1,15 @@
 package com.family_tasks.tracker.reward.application;
 
 import com.family_tasks.tracker.reward.core.RewardGetService;
+import com.family_tasks.tracker.reward.core.RewardPatchService;
 import com.family_tasks.tracker.reward.model.dto.RewardApiResponse;
+import com.family_tasks.tracker.reward.model.dto.RewardUpdateApiRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class RewardController {
     public static final String REWARD_URL = "/v1/rewards";
 
     private final RewardGetService rewardGetService;
+    private final RewardPatchService rewardPatchService;
 
     @Operation(
             summary = "Get all rewards by user ID",
@@ -35,5 +37,11 @@ public class RewardController {
                                               @RequestParam(name = "userId", required = false)
                                               Integer userId) {
         return rewardGetService.getRewards(userId);
+    }
+
+    @PatchMapping(REWARD_URL + "/{rewardId}")
+    public RewardApiResponse updateRewardAmount(@PathVariable String rewardId,
+                                                @Valid @RequestBody RewardUpdateApiRequest patchRequest) {
+        return rewardPatchService.patchReward(rewardId, patchRequest);
     }
 }

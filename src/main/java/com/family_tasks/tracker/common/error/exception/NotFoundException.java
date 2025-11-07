@@ -1,7 +1,6 @@
 package com.family_tasks.tracker.common.error.exception;
 
-import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_NOT_EXIST;
-import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_EXIST;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 
 public class NotFoundException extends RuntimeException {
 
@@ -15,5 +14,9 @@ public class NotFoundException extends RuntimeException {
 
     public static NotFoundException userNotFound(Integer userId) {
         return new NotFoundException(String.format(USER_NOT_EXIST, userId));
+    }
+
+    public static NotFoundException rewardNotFound(String rewardId) {
+        return new NotFoundException(String.format(REWARD_NOT_EXIST, rewardId));
     }
 }
