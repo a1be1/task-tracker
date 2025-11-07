@@ -10,8 +10,10 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import static com.family_tasks.tracker.common.validation.ValidationMessage.INCORRECT_REQUEST_FORMAT;
+import static com.family_tasks.tracker.common.validation.ValidationMessage.VALIDATION_FAILED;
 
 @Slf4j
 @ControllerAdvice
@@ -72,7 +74,24 @@ public class ExceptionAdvice {
         log.error("HttpMessageNotReadableException: ", e);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(INCORRECT_REQUEST_FORMAT));
+                .body(new ErrorResponse("Incorrect request format. Check data types."));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException e) {
+        log.error("NoResourceFoundException: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("Resource not found"));
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(HandlerMethodValidationException e) {
+        log.error("Validation error: {}", e.getMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(VALIDATION_FAILED));
     }
 
     @ExceptionHandler({Throwable.class})

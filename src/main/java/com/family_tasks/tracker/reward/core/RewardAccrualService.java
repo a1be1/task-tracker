@@ -14,7 +14,7 @@ public class RewardAccrualService {
     private final RewardFactory rewardFactory;
 
     public void accrualReward(RewardAccrualRequest request) {
-        RewardEntity last = rewardRepository.findByUserIdOrderByCreatedAtDesc(request.getUserId()).orElse(null);
+        RewardEntity last = rewardRepository.findLastByUserIdOrderByCreatedAtDesc(request.getUserId()).orElse(null);
         int newTotal = (last != null ? last.getTotalSum() : 0) + request.getAmount();
 
         RewardEntity rewardEntity = rewardFactory.createReward(request);

@@ -1,4 +1,4 @@
-package com.family_tasks.tracker.reward;
+package com.family_tasks.tracker.reward.core;
 
 import com.family_tasks.tracker.AbstractIntegrationTest;
 import com.family_tasks.tracker.group.infrastructure.GroupRepository;
