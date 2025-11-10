@@ -3,6 +3,7 @@ package com.family_tasks.tracker.reward.core;
 import com.family_tasks.tracker.reward.infrastructure.RewardRepository;
 import com.family_tasks.tracker.reward.model.dto.RewardAccrualRequest;
 import com.family_tasks.tracker.reward.model.entity.RewardEntity;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ public class RewardAccrualService {
     private final RewardRepository rewardRepository;
     private final RewardFactory rewardFactory;
 
+    @Transactional
     public void accrualReward(RewardAccrualRequest request) {
         RewardEntity last = rewardRepository.findByUserIdOrderByCreatedAtDesc(request.getUserId()).orElse(null);
         int newTotal = (last != null ? last.getTotalSum() : 0) + request.getAmount();
