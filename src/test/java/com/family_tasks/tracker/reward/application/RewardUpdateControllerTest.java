@@ -17,6 +17,9 @@ import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -27,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.family_tasks.tracker.common.validation.ValidationConstants.REWARD_DESCRIPTION_MAX_LENGTH;
 import static com.family_tasks.tracker.common.validation.ValidationConstants.REWARD_DESCRIPTION_MIN_LENGTH;
@@ -343,9 +347,14 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(USER_NOT_EXIST, adminId);
     }
 
-    @Test
-    void whenDescriptionTooShort_updateReward() {
-        //prepare
+    @ParameterizedTest(name = "{index} => {0}")
+    @MethodSource("invalidRewardUpdateData")
+    void whenInvalidUpdateRequest_thenReturnBadRequest(
+            String testName,
+            RewardUpdateApiRequest request,
+            String expectedError
+    ) {
+        // prepare
         UserEntity admin = createUser();
         Integer groupId = createGroup(admin.getId());
         admin.setAdmin(true);
@@ -362,209 +371,78 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
         RewardEntity rewardEntity = buildRewardEntity(taskEntity);
         rewardRepository.save(rewardEntity);
 
-        String description = randomString(REWARD_DESCRIPTION_MIN_LENGTH - 1);
-
-        RewardUpdateApiRequest request = RewardUpdateApiRequest.builder()
-                .updatedBy(admin.getId())
-                .description(description)
-                .amount(0)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(RewardController.REWARD_URL + "/" + rewardEntity.getId(),
+        // execute
+        ResponseEntity<ErrorResponse> responseEntity = client.exchange(
+                RewardController.REWARD_URL + "/" + rewardEntity.getId(),
                 HttpMethod.PUT,
                 new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
+                ErrorResponse.class
+        );
+
+        // validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        org.junit.jupiter.api.Assertions.assertNotNull(response);
-        assertThat(response.errorMessage()).isEqualTo(REWARD_DESCRIPTION_TOO_SHORT);
+        assertThat(response.errorMessage()).isEqualTo(expectedError);
     }
 
-    @Test
-    void whenDescriptionTooLong_updateReward() {
-        //prepare
-        UserEntity admin = createUser();
-        Integer groupId = createGroup(admin.getId());
-        admin.setAdmin(true);
-        admin.setGroupId(groupId);
-        userRepository.save(admin);
-
-        UserEntity user = createUser();
-        user.setGroupId(groupId);
-        userRepository.save(user);
-
-        TaskEntity taskEntity = buildCompletedTaskEntity(user.getId());
-        taskRepository.save(taskEntity);
-
-        RewardEntity rewardEntity = buildRewardEntity(taskEntity);
-        rewardRepository.save(rewardEntity);
-
-        String description = randomString(REWARD_DESCRIPTION_MAX_LENGTH + 1);
-
-        RewardUpdateApiRequest request = RewardUpdateApiRequest.builder()
-                .updatedBy(admin.getId())
-                .description(description)
-                .amount(0)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(RewardController.REWARD_URL + "/" + rewardEntity.getId(),
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        org.junit.jupiter.api.Assertions.assertNotNull(response);
-        assertThat(response.errorMessage()).isEqualTo(REWARD_DESCRIPTION_TOO_LONG);
-    }
-    @Test
-    void whenAmountLessNull_updateReward() {
-        //prepare
-        UserEntity admin = createUser();
-        Integer groupId = createGroup(admin.getId());
-        admin.setAdmin(true);
-        admin.setGroupId(groupId);
-        userRepository.save(admin);
-
-        UserEntity user = createUser();
-        user.setGroupId(groupId);
-        userRepository.save(user);
-
-        TaskEntity taskEntity = buildCompletedTaskEntity(user.getId());
-        taskRepository.save(taskEntity);
-
-        RewardEntity rewardEntity = buildRewardEntity(taskEntity);
-        rewardRepository.save(rewardEntity);
-
-
-        RewardUpdateApiRequest request = RewardUpdateApiRequest.builder()
-                .updatedBy(admin.getId())
-                .description("description after update")
-                .amount(-1)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(RewardController.REWARD_URL + "/" + rewardEntity.getId(),
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        org.junit.jupiter.api.Assertions.assertNotNull(response);
-        assertThat(response.errorMessage()).isEqualTo(REWARDS_POINTS_POSITIVE);
-    }
-
-    @Test
-    void whenAmountNull_updateReward() {
-        //prepare
-        UserEntity admin = createUser();
-        Integer groupId = createGroup(admin.getId());
-        admin.setAdmin(true);
-        admin.setGroupId(groupId);
-        userRepository.save(admin);
-
-        UserEntity user = createUser();
-        user.setGroupId(groupId);
-        userRepository.save(user);
-
-        TaskEntity taskEntity = buildCompletedTaskEntity(user.getId());
-        taskRepository.save(taskEntity);
-
-        RewardEntity rewardEntity = buildRewardEntity(taskEntity);
-        rewardRepository.save(rewardEntity);
-
-
-        RewardUpdateApiRequest request = RewardUpdateApiRequest.builder()
-                .updatedBy(admin.getId())
-                .description("description after update")
-                .amount(null)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(RewardController.REWARD_URL + "/" + rewardEntity.getId(),
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        org.junit.jupiter.api.Assertions.assertNotNull(response);
-        assertThat(response.errorMessage()).isEqualTo(REWARD_AMOUNT_NULL);
-    }
-
-    @Test
-    void whenUpdatedByNull_updateReward() {
-        //prepare
-        UserEntity user = createUser();
-        Integer groupId = createGroup(user.getId());
-        user.setGroupId(groupId);
-        userRepository.save(user);
-
-        TaskEntity taskEntity = buildCompletedTaskEntity(user.getId());
-        taskRepository.save(taskEntity);
-
-        RewardEntity rewardEntity = buildRewardEntity(taskEntity);
-        rewardRepository.save(rewardEntity);
-
-
-        RewardUpdateApiRequest request = RewardUpdateApiRequest.builder()
-                .updatedBy(null)
-                .description("description after update")
-                .amount(0)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(RewardController.REWARD_URL + "/" + rewardEntity.getId(),
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        org.junit.jupiter.api.Assertions.assertNotNull(response);
-        assertThat(response.errorMessage()).isEqualTo(USER_NOT_SPECIFIED);
-    }
-
-    @Test
-    void whenDescriptionNull_updateReward() {
-        //prepare
-        UserEntity admin = createUser();
-        Integer groupId = createGroup(admin.getId());
-        admin.setAdmin(true);
-        admin.setGroupId(groupId);
-        userRepository.save(admin);
-
-        UserEntity user = createUser();
-        user.setGroupId(groupId);
-        userRepository.save(user);
-
-        TaskEntity taskEntity = buildCompletedTaskEntity(user.getId());
-        taskRepository.save(taskEntity);
-
-        RewardEntity rewardEntity = buildRewardEntity(taskEntity);
-        rewardRepository.save(rewardEntity);
-
-
-        RewardUpdateApiRequest request = RewardUpdateApiRequest.builder()
-                .updatedBy(admin.getId())
-                .description(null)
-                .amount(0)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(RewardController.REWARD_URL + "/" + rewardEntity.getId(),
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        org.junit.jupiter.api.Assertions.assertNotNull(response);
-        assertThat(response.errorMessage()).isEqualTo(REWARD_DESCRIPTION_NULL);
+    private static Stream<Arguments> invalidRewardUpdateData() {
+        return Stream.of(
+                Arguments.of(
+                        "Description is null",
+                        RewardUpdateApiRequest.builder()
+                                .updatedBy(1)
+                                .description(null)
+                                .amount(0)
+                                .build(),
+                        REWARD_DESCRIPTION_NULL
+                ),
+                Arguments.of(
+                        "Description too short",
+                        RewardUpdateApiRequest.builder()
+                                .updatedBy(1)
+                                .description(randomString(REWARD_DESCRIPTION_MIN_LENGTH - 1))
+                                .amount(0)
+                                .build(),
+                        REWARD_DESCRIPTION_TOO_SHORT
+                ),
+                Arguments.of(
+                        "Description too long",
+                        RewardUpdateApiRequest.builder()
+                                .updatedBy(1)
+                                .description(randomString(REWARD_DESCRIPTION_MAX_LENGTH + 1))
+                                .amount(0)
+                                .build(),
+                        REWARD_DESCRIPTION_TOO_LONG
+                ),
+                Arguments.of(
+                        "Amount is null",
+                        RewardUpdateApiRequest.builder()
+                                .updatedBy(1)
+                                .description("description after update")
+                                .amount(null)
+                                .build(),
+                        REWARD_AMOUNT_NULL
+                ),
+                Arguments.of(
+                        "Amount is negative",
+                        RewardUpdateApiRequest.builder()
+                                .updatedBy(1)
+                                .description("description after update")
+                                .amount(-1)
+                                .build(),
+                        REWARDS_POINTS_POSITIVE
+                ),
+                Arguments.of(
+                        "UpdatedBy is null",
+                        RewardUpdateApiRequest.builder()
+                                .updatedBy(null)
+                                .description("description after update")
+                                .amount(0)
+                                .build(),
+                        USER_NOT_SPECIFIED
+                )
+        );
     }
 
     private RewardEntity buildRewardEntity(TaskEntity task) {
