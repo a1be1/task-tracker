@@ -34,4 +34,6 @@ public interface ValidationMessage {
     String REWARDS_POINTS_POSITIVE = "Reward points cannot be negative.";
     String VALIDATION_FAILED = "Validation failed";
     String REWARD_NOT_EXIST = "Reward with id %s doesn't exist.";
+    String REWARD_DESCRIPTION_TOO_LONG = "A reward description length shouldn't be more than " + REWARD_DESCRIPTION_MAX_LENGTH + ".";
+    String REWARD_DESCRIPTION_TOO_SHORT = "A task description length shouldn't be less than " + REWARD_DESCRIPTION_MIN_LENGTH + ".";
 }

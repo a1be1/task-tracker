@@ -1,7 +1,7 @@
 package com.family_tasks.tracker.reward.application;
 
 import com.family_tasks.tracker.reward.core.RewardGetService;
-import com.family_tasks.tracker.reward.core.RewardPatchService;
+import com.family_tasks.tracker.reward.core.RewardUpdateService;
 import com.family_tasks.tracker.reward.model.dto.RewardApiResponse;
 import com.family_tasks.tracker.reward.model.dto.RewardUpdateApiRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +23,7 @@ public class RewardController {
     public static final String REWARD_URL = "/v1/rewards";
 
     private final RewardGetService rewardGetService;
-    private final RewardPatchService rewardPatchService;
+    private final RewardUpdateService rewardUpdateService;
 
     @Operation(
             summary = "Get all rewards by user ID",
@@ -39,9 +39,9 @@ public class RewardController {
         return rewardGetService.getRewards(userId);
     }
 
-    @PatchMapping(REWARD_URL + "/{rewardId}")
+    @PutMapping(REWARD_URL + "/{rewardId}")
     public RewardApiResponse updateRewardAmount(@PathVariable String rewardId,
-                                                @Valid @RequestBody RewardUpdateApiRequest patchRequest) {
-        return rewardPatchService.patchReward(rewardId, patchRequest);
+                                                @Valid @RequestBody RewardUpdateApiRequest apiRequest) {
+        return rewardUpdateService.updateReward(rewardId, apiRequest);
     }
 }

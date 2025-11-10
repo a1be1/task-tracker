@@ -11,11 +11,11 @@ import static com.family_tasks.tracker.common.error.exception.NotFoundException.
 
 @Service
 @RequiredArgsConstructor
-public class RewardPatchService {
+public class RewardUpdateService {
 
     private final RewardRepository rewardRepository;
 
-    public RewardApiResponse patchReward(String rewardId, RewardUpdateApiRequest patchApiRequest) {
+    public RewardApiResponse updateReward(String rewardId, RewardUpdateApiRequest patchApiRequest) {
         RewardEntity rewardEntity = rewardRepository.findById(rewardId).orElseThrow(() -> rewardNotFound(rewardId));
 
         rewardEntity.setAmount(patchApiRequest.getAmount());
