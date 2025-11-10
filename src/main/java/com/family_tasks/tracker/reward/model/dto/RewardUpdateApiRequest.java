@@ -18,12 +18,12 @@ import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 @EqualsAndHashCode
 public class RewardUpdateApiRequest {
     @PositiveOrZero(message = REWARDS_POINTS_POSITIVE)
-    @NotNull
+    @NotNull(message = REWARD_AMOUNT_NULL)
     private Integer amount;
-    @NotNull
-    private Integer userId;
+    @NotNull(message = USER_NOT_SPECIFIED)
+    private Integer updatedBy;
     @Size(max = REWARD_DESCRIPTION_MAX_LENGTH, message = REWARD_DESCRIPTION_TOO_LONG)
     @Size(min = REWARD_DESCRIPTION_MIN_LENGTH, message = REWARD_DESCRIPTION_TOO_SHORT)
-    @NotNull
+    @NotNull(message = REWARD_DESCRIPTION_NULL)
     private String description;
 }

@@ -36,4 +36,8 @@ public interface ValidationMessage {
     String REWARD_NOT_EXIST = "Reward with id %s doesn't exist.";
     String REWARD_DESCRIPTION_TOO_LONG = "A reward description length shouldn't be more than " + REWARD_DESCRIPTION_MAX_LENGTH + ".";
     String REWARD_DESCRIPTION_TOO_SHORT = "A task description length shouldn't be less than " + REWARD_DESCRIPTION_MIN_LENGTH + ".";
+    String USER_NOT_ADMIN = "Only the admin can edit rewards.";
+    String UPDATE_REWARD_FOR_OWN_GROUP = "A reward can be updated only for users from own group.";
+    String REWARD_AMOUNT_NULL = "Amount must be specified.";
+    String REWARD_DESCRIPTION_NULL = "Description must be specified.";
 }

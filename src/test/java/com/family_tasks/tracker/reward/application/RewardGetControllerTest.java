@@ -37,8 +37,6 @@ public class RewardGetControllerTest extends AbstractIntegrationTest {
     @Autowired
     UserRepository userRepository;
     @Autowired
-    GroupRepository groupRepository;
-    @Autowired
     RewardRepository rewardRepository;
 
     @Test
