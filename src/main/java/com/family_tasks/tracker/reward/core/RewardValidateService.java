@@ -13,9 +13,6 @@ public class RewardValidateService {
     private UserRepository userRepository;
 
     void validateUserExisting(Integer userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException(USER_NOT_SPECIFIED);
-        }
 
         if (!userRepository.existsById(userId)) {
             throw NotFoundException.userNotFound(userId);

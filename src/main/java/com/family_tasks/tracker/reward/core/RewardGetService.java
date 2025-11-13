@@ -19,9 +19,9 @@ public class RewardGetService {
     public List<RewardApiResponse> getRewards(Integer userId) {
 
         rewardValidateService.validateUserExisting(userId);
-
         List<RewardEntity> rewards = rewardRepository.findByUserIdOrderByCreatedAtDesc(userId);
-
-        return rewards.stream().map(mapper::toResponse).toList();
+        return rewards.stream()
+                .map(mapper::toResponse)
+                .toList();
     }
 }

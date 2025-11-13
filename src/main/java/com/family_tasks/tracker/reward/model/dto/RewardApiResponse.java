@@ -25,7 +25,7 @@ public class RewardApiResponse {
     private Integer amount;
     @Schema(description = "The total number of points earned for the tasks.")
     private Integer totalSum;
-    @Schema(description = "Comments on the reward")
+    @Schema(description = "Comments on the reward. This is applicable only when updating reward.")
     private String description;
     @Schema(description = "The datetime of the reward accrual.")
     private LocalDateTime createdAt;
