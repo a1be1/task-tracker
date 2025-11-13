@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
+import static com.family_tasks.tracker.utils.TestUtils.randomInt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -784,6 +785,7 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
         taskEntity.setCreatedAt(TimeUtils.now());
         taskEntity.setUpdatedAt(TimeUtils.now());
         taskEntity.setStatus(TaskStatus.TO_DO.name());
+        taskEntity.setRewardsPoints(randomInt(1, 100));
 
         return taskEntity;
     }
@@ -801,6 +803,7 @@ public class TaskGetControllerTest extends AbstractIntegrationTest {
                 .deadline(taskEntity.getDeadline())
                 .createdAt(taskEntity.getCreatedAt())
                 .updatedAt(taskEntity.getUpdatedAt())
+                .rewardsPoints(taskEntity.getRewardsPoints())
                 .build();
     }
 

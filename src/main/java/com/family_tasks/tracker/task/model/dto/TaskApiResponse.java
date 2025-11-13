@@ -34,6 +34,8 @@ public class TaskApiResponse {
     private final Set<Integer> executorIds;
     @Schema(description = "The flag indicates whether the task is public or visible only for the reporter and executors.")
     private final boolean confidential;
+    @Schema(description = "The number of reward points awarded when the task status changes to COMPLETED")
+    private final Integer rewardsPoints;
     @Schema(description = "The task deadline indicates when the task is expected to be completed.")
     private final LocalDate deadline;
     @Schema(description = "The datetime of the task creation.")

@@ -7,6 +7,7 @@ import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -52,6 +53,10 @@ public class TaskUpdateApiRequest {
     @Schema(description = "The flag indicates whether the task is public or visible only for the reporter and executors.")
     @NotNull(message = TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED)
     private final Boolean confidential;
+
+    @Schema(description = "The number of reward points awarded when the task status changes to COMPLETED")
+    @Positive(message = REWARDS_POINTS_POSITIVE)
+    private Integer rewardsPoints;
 
     @Schema(description = "The task deadline indicates when the task is expected to be completed.")
     private final LocalDate deadline;

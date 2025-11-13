@@ -3,10 +3,7 @@ package com.family_tasks.tracker.task.model.dto;
 import com.family_tasks.tracker.common.validation.annotation.ValidTaskPriority;
 import com.family_tasks.tracker.task.model.enums.TaskPriority;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -51,6 +48,10 @@ public class TaskCreateApiRequest {
     @Schema(description = "The flag indicates whether the task is public or visible only for the reporter and executors.")
     @NotNull(message = TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED)
     private final Boolean confidential;
+
+    @Schema(description = "The number of reward points awarded when the task status changes to COMPLETED")
+    @Positive(message = REWARDS_POINTS_POSITIVE)
+    private Integer rewardsPoints;
 
     @Schema(description = "The task deadline indicates when the task is expected to be completed.")
     @FutureOrPresent(message = TASK_DEADLINE_DATE_NOT_PRESENT_OR_FUTURE)

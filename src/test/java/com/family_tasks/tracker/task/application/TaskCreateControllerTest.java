@@ -27,6 +27,7 @@ import java.util.Set;
 import static com.family_tasks.tracker.common.validation.ValidationConstants.*;
 import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 import static com.family_tasks.tracker.task.application.TaskController.TASK_URL;
+import static com.family_tasks.tracker.utils.TestUtils.randomInt;
 import static com.family_tasks.tracker.utils.TestUtils.randomString;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,6 +70,7 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response.getExecutorIds()).isEqualTo(request.getExecutorIds());
         assertThat(response.isConfidential()).isEqualTo(request.getConfidential());
         assertThat(response.getDeadline()).isEqualTo(request.getDeadline());
+        assertThat(response.getRewardsPoints()).isEqualTo(request.getRewardsPoints());
 
         TaskEntity taskEntity = taskRepository.findById(response.getTaskId()).orElseThrow();
         assertThat(taskEntity).isNotNull();
@@ -103,6 +105,7 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response.getExecutorIds()).isEqualTo(request.getExecutorIds());
         assertThat(response.isConfidential()).isEqualTo(request.getConfidential());
         assertThat(response.getDeadline()).isEqualTo(request.getDeadline());
+        assertThat(response.getRewardsPoints()).isEqualTo(request.getRewardsPoints());
 
         TaskEntity taskEntity = taskRepository.findById(response.getTaskId()).orElseThrow();
         assertThat(taskEntity).isNotNull();
@@ -400,6 +403,27 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(String.format(USER_NOT_EXIST, executorId));
     }
 
+    @Test
+    void whenRewardPointsZero_createTask() {
+        //prepare
+        UserEntity reporter = createUser();
+        Integer groupId = createGroup(reporter.getId());
+        reporter.setGroupId(groupId);
+        userRepository.save(reporter);
+
+        Integer executorId = createUser().getId() + 2;
+        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
+                .rewardsPoints(0)
+                .build();
+        //execute
+        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
+        //validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(REWARDS_POINTS_POSITIVE);
+    }
+
     private TaskCreateApiRequest.TaskCreateApiRequestBuilder buildCreateRequest(Integer userId) {
         return TaskCreateApiRequest.builder()
                 .name("Name of task")
@@ -408,7 +432,8 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
                 .reporterId(userId)
                 .executorIds(Set.of())
                 .confidential(false)
-                .deadline(LocalDate.now());
+                .deadline(LocalDate.now())
+                .rewardsPoints(randomInt(1, 100));
     }
 
     private UserEntity createUser() {
