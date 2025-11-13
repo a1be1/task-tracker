@@ -40,6 +40,7 @@ public interface RewardRepository extends JpaRepository<RewardEntity, String> {
                     WHERE r.user_id = :userId
                     AND r.created_at  >= :createdAt
                     ORDER BY r.created_at ASC
+                    FOR UPDATE;
             """, nativeQuery = true)
     List<RewardEntity> findAllByUserIdAndCreatedAtAfterOrEqual(
             @Param("userId") Integer userId,

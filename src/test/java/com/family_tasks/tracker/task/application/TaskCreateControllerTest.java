@@ -15,7 +15,9 @@ import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.family_tasks.tracker.common.validation.ValidationConstants.*;
 import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
@@ -40,15 +43,13 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     TaskRepository taskRepository;
     @Autowired
     UserRepository userRepository;
-    @Autowired
-    GroupRepository groupRepository;
 
     @EnumSource(value = TaskPriority.class)
     @ParameterizedTest
     void withGivenPriority_createTask(TaskPriority priority) {
         //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
+        UserEntity reporter = createUserEntity();
+        Integer groupId = createGroupEntity(reporter.getId());
         reporter.setGroupId(groupId);
         userRepository.save(reporter);
 
@@ -79,12 +80,12 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenExecutorWithSameGroup_createTask() {
         //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
+        UserEntity reporter = createUserEntity();
+        Integer groupId = createGroupEntity(reporter.getId());
         reporter.setGroupId(groupId);
         userRepository.save(reporter);
 
-        UserEntity executor = createUser();
+        UserEntity executor = createUserEntity();
         executor.setGroupId(groupId);
         userRepository.save(executor);
 
@@ -114,7 +115,7 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserWithoutGroup_createTask() {
         //prepare
-        UserEntity user = createUser();
+        UserEntity user = createUserEntity();
         TaskCreateApiRequest request = buildCreateRequest(user.getId()).build();
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
@@ -128,12 +129,12 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenExecutorWithoutGroup_createTask() {
         //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
+        UserEntity reporter = createUserEntity();
+        Integer groupId = createGroupEntity(reporter.getId());
         reporter.setGroupId(groupId);
         userRepository.save(reporter);
 
-        UserEntity executor = createUser();
+        UserEntity executor = createUserEntity();
         TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
                 .executorIds(Set.of(executor.getId())).build();
         //execute
@@ -148,13 +149,13 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenExecutorWithAnotherGroup_createTask() {
         //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
+        UserEntity reporter = createUserEntity();
+        Integer groupId = createGroupEntity(reporter.getId());
         reporter.setGroupId(groupId);
         userRepository.save(reporter);
 
-        UserEntity executor = createUser();
-        Integer executorGroupId = createGroup(executor.getId());
+        UserEntity executor = createUserEntity();
+        Integer executorGroupId = createGroupEntity(executor.getId());
         executor.setGroupId(executorGroupId);
         userRepository.save(executor);
 
@@ -169,208 +170,26 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(CREATE_OR_UPDATE_TASK_FOR_OWN_GROUP);
     }
 
-    @Test
-    void whenPriorityInvalid_createTask() {
-        //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
+    @ParameterizedTest(name = "{index} => {0}")
+    @MethodSource("invalidCreateTaskProvider")
+    void whenInvalidInput_createTask_shouldReturnBadRequest(String testName,
+                                                            TaskCreateApiRequest request,
+                                                            String expectedMessage) {
+        // execute
+        ResponseEntity<ErrorResponse> responseEntity =
+                client.postForEntity(TaskController.TASK_URL, request, ErrorResponse.class);
 
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .priority("INVALID_PRIORITY")
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
+        // validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_PRIORITY_INVALID);
-    }
-
-    @Test
-    void whenPriorityNull_createTask() {
-        //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .priority(null)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_PRIORITY_NULL);
-    }
-
-    @Test
-    void whenPriorityEmpty_createTask() {
-        //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .priority("")
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_PRIORITY_NULL);
-    }
-
-    @Test
-    void whenEmptyTaskName_createTask() {
-        //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .name(null)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_NAME_NOT_SPECIFIED);
-    }
-
-    @Test
-    void whenTaskNameToLong_createTask() {
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .name(randomString(TASK_NAME_MAX_LENGTH + 1))
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_NAME_TOO_LONG);
-    }
-
-    @Test
-    void whenTaskDescriptionToLong_createTask() {
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .description(randomString(TASK_DESCRIPTION_MAX_LENGTH + 1))
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TOO_LONG);
-    }
-
-    @Test
-    void whenTaskDescriptionToShort_createTask() {
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .description(randomString(TASK_DESCRIPTION_MIN_LENGTH - 1))
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TOO_SHORT);
-    }
-
-    @Test
-    void whenDeadlineDateInvalid_createTask() {
-        //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .deadline(LocalDate.now().minusDays(1))
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DEADLINE_DATE_NOT_PRESENT_OR_FUTURE);
-    }
-
-
-    @Test
-    void whenTaskConfidentialNull_createTask() {
-        //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .confidential(null)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED);
-    }
-
-    @Test
-    void whenTaskReporterIdNull_createTask() {
-        //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .reporterId(null)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_REPORTER_NULL);
+        assertThat(response.errorMessage()).isEqualTo(expectedMessage);
     }
 
     @Test
     void whenTaskReporterNotExist_createTask() {
         //prepare
-        Integer reporterId = createUser().getId() + 2;
+        Integer reporterId = createUserEntity().getId() + 2;
         TaskCreateApiRequest request = buildCreateRequest(reporterId)
                 .build();
         //execute
@@ -385,12 +204,12 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTaskExecutorNotExist_createTask() {
         //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
+        UserEntity reporter = createUserEntity();
+        Integer groupId = createGroupEntity(reporter.getId());
         reporter.setGroupId(groupId);
         userRepository.save(reporter);
 
-        Integer executorId = createUser().getId() + 2;
+        Integer executorId = createUserEntity().getId() + 2;
         TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
                 .executorIds(Set.of(executorId))
                 .build();
@@ -403,28 +222,73 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(String.format(USER_NOT_EXIST, executorId));
     }
 
-    @Test
-    void whenRewardPointsZero_createTask() {
-        //prepare
-        UserEntity reporter = createUser();
-        Integer groupId = createGroup(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
+    private static Stream<Arguments> invalidCreateTaskProvider() {
 
-        Integer executorId = createUser().getId() + 2;
-        TaskCreateApiRequest request = buildCreateRequest(reporter.getId())
-                .rewardsPoints(0)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.postForEntity(TASK_URL, request, ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(REWARDS_POINTS_POSITIVE);
+        return Stream.of(
+                Arguments.of(
+                        "When invalid priority",
+                        buildCreateRequest(1)
+                                .priority("INVALID_PRIORITY")
+                                .build(),
+                        TASK_PRIORITY_INVALID),
+                Arguments.of("When task's priority null",
+                        buildCreateRequest(1)
+                                .priority(null)
+                                .build(),
+                        TASK_PRIORITY_NULL),
+                Arguments.of("When task's priority empty",
+                        buildCreateRequest(1)
+                                .priority("")
+                                .build(),
+                        TASK_PRIORITY_NULL),
+                Arguments.of("When task's name null",
+                        buildCreateRequest(1)
+                                .name(null)
+                                .build(),
+                        TASK_NAME_NOT_SPECIFIED),
+                Arguments.of("When task's name empty",
+                        buildCreateRequest(1)
+                                .name("")
+                                .build(),
+                        TASK_NAME_NOT_SPECIFIED),
+                Arguments.of("When task's name to long",
+                        buildCreateRequest(1)
+                                .name(randomString(TASK_NAME_MAX_LENGTH + 1))
+                                .build(),
+                        TASK_NAME_TOO_LONG),
+                Arguments.of("When task's description to long",
+                        buildCreateRequest(1)
+                                .description(randomString(TASK_DESCRIPTION_MAX_LENGTH + 1))
+                                .build(),
+                        TASK_DESCRIPTION_TOO_LONG),
+                Arguments.of("When task's description to short",
+                        buildCreateRequest(1)
+                                .description(randomString(TASK_DESCRIPTION_MIN_LENGTH - 1))
+                                .build(),
+                        TASK_DESCRIPTION_TOO_SHORT),
+                Arguments.of("when Deadline date invalid",
+                        buildCreateRequest(1)
+                                .deadline(LocalDate.now().minusDays(1))
+                                .build(),
+                        TASK_DEADLINE_DATE_NOT_PRESENT_OR_FUTURE),
+                Arguments.of("When confidential is null",
+                        buildCreateRequest(1)
+                                .confidential(null)
+                                .build(),
+                        TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED),
+                Arguments.of("When task's reporter is null",
+                        buildCreateRequest(null)
+                                .build(),
+                        TASK_REPORTER_NULL),
+                Arguments.of("When reward points are zero",
+                        buildCreateRequest(1)
+                                .rewardsPoints(0)
+                                .build(),
+                        REWARDS_POINTS_POSITIVE)
+        );
     }
 
-    private TaskCreateApiRequest.TaskCreateApiRequestBuilder buildCreateRequest(Integer userId) {
+    private static TaskCreateApiRequest.TaskCreateApiRequestBuilder buildCreateRequest(Integer userId) {
         return TaskCreateApiRequest.builder()
                 .name("Name of task")
                 .description("Description of task")
@@ -434,26 +298,5 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
                 .confidential(false)
                 .deadline(LocalDate.now())
                 .rewardsPoints(randomInt(1, 100));
-    }
-
-    private UserEntity createUser() {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName("user name");
-        userEntity.setAdmin(false);
-        userEntity.setCreatedAt(TimeUtils.now());
-        userEntity.setUpdatedAt(TimeUtils.now());
-        userRepository.save(userEntity);
-        return userEntity;
-    }
-
-    private Integer createGroup(Integer ownerId) {
-        GroupEntity groupEntity = GroupEntity.builder()
-                .ownerId(ownerId)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deletedAt(null)
-                .build();
-        groupRepository.save(groupEntity);
-        return groupEntity.getId();
     }
 }

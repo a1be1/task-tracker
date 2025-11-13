@@ -2,17 +2,12 @@ package com.family_tasks.tracker.reward.application;
 
 import com.family_tasks.tracker.AbstractIntegrationTest;
 import com.family_tasks.tracker.common.error.ErrorResponse;
-import com.family_tasks.tracker.common.utils.TimeUtils;
-import com.family_tasks.tracker.group.infrastructure.GroupRepository;
-import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.reward.infrastructure.RewardRepository;
 import com.family_tasks.tracker.reward.model.dto.RewardApiResponse;
 import com.family_tasks.tracker.reward.model.dto.RewardUpdateApiRequest;
 import com.family_tasks.tracker.reward.model.entity.RewardEntity;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
-import com.family_tasks.tracker.task.model.enums.TaskPriority;
-import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import org.assertj.core.api.Assertions;
@@ -26,16 +21,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.family_tasks.tracker.common.validation.ValidationConstants.REWARD_DESCRIPTION_MAX_LENGTH;
 import static com.family_tasks.tracker.common.validation.ValidationConstants.REWARD_DESCRIPTION_MIN_LENGTH;
 import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
-import static com.family_tasks.tracker.utils.TestUtils.randomInt;
 import static com.family_tasks.tracker.utils.TestUtils.randomString;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -49,26 +40,24 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
     UserRepository userRepository;
     @Autowired
     RewardRepository rewardRepository;
-    @Autowired
-    GroupRepository groupRepository;
 
     @Test
     void whenRewardExist_updateReward() {
         //prepare
-        UserEntity admin = createUser();
-        Integer groupId = createGroup(admin.getId());
+        UserEntity admin = createUserEntity();
+        Integer groupId = createGroupEntity(admin.getId());
         admin.setAdmin(true);
         admin.setGroupId(groupId);
         userRepository.save(admin);
 
-        UserEntity user = createUser();
+        UserEntity user = createUserEntity();
         user.setGroupId(groupId);
         userRepository.save(user);
 
-        TaskEntity taskEntity = buildCompletedTaskEntity(user.getId());
+        TaskEntity taskEntity = createTaskEntity(user.getId());
         taskRepository.save(taskEntity);
 
-        RewardEntity rewardEntity = buildRewardEntity(taskEntity);
+        RewardEntity rewardEntity = createRewardEntity(taskEntity);
         rewardRepository.save(rewardEntity);
 
         RewardUpdateApiRequest request = RewardUpdateApiRequest.builder()
@@ -99,26 +88,26 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTwoRewardsExist_updateReward() {
         //prepare
-        UserEntity admin = createUser();
-        Integer groupId = createGroup(admin.getId());
+        UserEntity admin = createUserEntity();
+        Integer groupId = createGroupEntity(admin.getId());
         admin.setAdmin(true);
         admin.setGroupId(groupId);
         userRepository.save(admin);
 
-        UserEntity user = createUser();
+        UserEntity user = createUserEntity();
         user.setGroupId(groupId);
         userRepository.save(user);
 
-        TaskEntity taskEntity1 = buildCompletedTaskEntity(user.getId());
+        TaskEntity taskEntity1 = createTaskEntity(user.getId());
         taskRepository.save(taskEntity1);
 
-        RewardEntity rewardEntity1 = buildRewardEntity(taskEntity1);
+        RewardEntity rewardEntity1 = createRewardEntity(taskEntity1);
         rewardRepository.save(rewardEntity1);
 
-        TaskEntity taskEntity2 = buildCompletedTaskEntity(user.getId());
+        TaskEntity taskEntity2 = createTaskEntity(user.getId());
         taskRepository.save(taskEntity2);
 
-        RewardEntity rewardEntity2 = buildRewardEntity(taskEntity2);
+        RewardEntity rewardEntity2 = createRewardEntity(taskEntity2);
         int rewardDelta = rewardEntity2.getAmount();
         rewardEntity2.setTotalSum(rewardEntity2.getAmount() + rewardEntity1.getAmount());
         rewardRepository.save(rewardEntity2);
@@ -155,26 +144,26 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenTotalSumLessNull_updateReward() {
         //prepare
-        UserEntity admin = createUser();
-        Integer groupId = createGroup(admin.getId());
+        UserEntity admin = createUserEntity();
+        Integer groupId = createGroupEntity(admin.getId());
         admin.setAdmin(true);
         admin.setGroupId(groupId);
         userRepository.save(admin);
 
-        UserEntity user = createUser();
+        UserEntity user = createUserEntity();
         user.setGroupId(groupId);
         userRepository.save(user);
 
-        TaskEntity taskEntity1 = buildCompletedTaskEntity(user.getId());
+        TaskEntity taskEntity1 = createTaskEntity(user.getId());
         taskRepository.save(taskEntity1);
 
-        RewardEntity rewardEntity1 = buildRewardEntity(taskEntity1);
+        RewardEntity rewardEntity1 = createRewardEntity(taskEntity1);
         rewardRepository.save(rewardEntity1);
 
-        TaskEntity taskEntity2 = buildCompletedTaskEntity(user.getId());
+        TaskEntity taskEntity2 = createTaskEntity(user.getId());
         taskRepository.save(taskEntity2);
 
-        RewardEntity rewardEntity2 = buildRewardEntity(taskEntity2);
+        RewardEntity rewardEntity2 = createRewardEntity(taskEntity2);
         rewardEntity2.setTotalSum(0);
         rewardRepository.save(rewardEntity2);
 
@@ -210,12 +199,12 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenRewardNotExist_updateReward() {
         //prepare
-        UserEntity admin = createUser();
-        Integer groupId = createGroup(admin.getId());
+        UserEntity admin = createUserEntity();
+        Integer groupId = createGroupEntity(admin.getId());
         admin.setGroupId(groupId);
         userRepository.save(admin);
 
-        UserEntity user = createUser();
+        UserEntity user = createUserEntity();
         user.setGroupId(groupId);
         userRepository.save(user);
 
@@ -242,19 +231,19 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUpdatedByNotAdmin_updateReward() {
         //prepare
-        UserEntity admin = createUser();
-        Integer groupId = createGroup(admin.getId());
+        UserEntity admin = createUserEntity();
+        Integer groupId = createGroupEntity(admin.getId());
         admin.setGroupId(groupId);
         userRepository.save(admin);
 
-        UserEntity user = createUser();
+        UserEntity user = createUserEntity();
         user.setGroupId(groupId);
         userRepository.save(user);
 
-        TaskEntity taskEntity = buildCompletedTaskEntity(user.getId());
+        TaskEntity taskEntity = createTaskEntity(user.getId());
         taskRepository.save(taskEntity);
 
-        RewardEntity rewardEntity = buildRewardEntity(taskEntity);
+        RewardEntity rewardEntity = createRewardEntity(taskEntity);
         rewardRepository.save(rewardEntity);
 
         RewardUpdateApiRequest request = RewardUpdateApiRequest.builder()
@@ -278,21 +267,21 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUpdatedByFromAnotherGroup_updateReward() {
         //prepare
-        UserEntity admin = createUser();
-        Integer groupId1 = createGroup(admin.getId());
+        UserEntity admin = createUserEntity();
+        Integer groupId1 = createGroupEntity(admin.getId());
         admin.setAdmin(true);
         admin.setGroupId(groupId1);
         userRepository.save(admin);
 
-        UserEntity user = createUser();
-        Integer groupId2 = createGroup(user.getId());
+        UserEntity user = createUserEntity();
+        Integer groupId2 = createGroupEntity(user.getId());
         user.setGroupId(groupId2);
         userRepository.save(user);
 
-        TaskEntity taskEntity = buildCompletedTaskEntity(user.getId());
+        TaskEntity taskEntity = createTaskEntity(user.getId());
         taskRepository.save(taskEntity);
 
-        RewardEntity rewardEntity = buildRewardEntity(taskEntity);
+        RewardEntity rewardEntity = createRewardEntity(taskEntity);
         rewardRepository.save(rewardEntity);
 
         RewardUpdateApiRequest request = RewardUpdateApiRequest.builder()
@@ -310,23 +299,23 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         org.junit.jupiter.api.Assertions.assertNotNull(response);
-        assertThat(response.errorMessage()).isEqualTo(UPDATE_REWARD_FOR_OWN_GROUP);
+        assertThat(response.errorMessage()).isEqualTo(String.format(REWARD_NOT_EXIST, rewardEntity.getId()));
     }
 
     @Test
     void whenUpdatedByNotExist_updateReward() {
         //prepare
-        UserEntity user = createUser();
-        Integer groupId = createGroup(user.getId());
+        UserEntity user = createUserEntity();
+        Integer groupId = createGroupEntity(user.getId());
         user.setGroupId(groupId);
         userRepository.save(user);
 
         Integer adminId = user.getId() + 2;
 
-        TaskEntity taskEntity = buildCompletedTaskEntity(user.getId());
+        TaskEntity taskEntity = createTaskEntity(user.getId());
         taskRepository.save(taskEntity);
 
-        RewardEntity rewardEntity = buildRewardEntity(taskEntity);
+        RewardEntity rewardEntity = createRewardEntity(taskEntity);
         rewardRepository.save(rewardEntity);
 
         RewardUpdateApiRequest request = RewardUpdateApiRequest.builder()
@@ -355,20 +344,20 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
             String expectedError
     ) {
         // prepare
-        UserEntity admin = createUser();
-        Integer groupId = createGroup(admin.getId());
+        UserEntity admin = createUserEntity();
+        Integer groupId = createGroupEntity(admin.getId());
         admin.setAdmin(true);
         admin.setGroupId(groupId);
         userRepository.save(admin);
 
-        UserEntity user = createUser();
+        UserEntity user = createUserEntity();
         user.setGroupId(groupId);
         userRepository.save(user);
 
-        TaskEntity taskEntity = buildCompletedTaskEntity(user.getId());
+        TaskEntity taskEntity = createTaskEntity(user.getId());
         taskRepository.save(taskEntity);
 
-        RewardEntity rewardEntity = buildRewardEntity(taskEntity);
+        RewardEntity rewardEntity = createRewardEntity(taskEntity);
         rewardRepository.save(rewardEntity);
 
         // execute
@@ -443,60 +432,5 @@ public class RewardUpdateControllerTest extends AbstractIntegrationTest {
                         USER_NOT_SPECIFIED
                 )
         );
-    }
-
-    private RewardEntity buildRewardEntity(TaskEntity task) {
-        RewardEntity rewardEntity = new RewardEntity();
-        rewardEntity.setId(UUID.randomUUID().toString());
-        rewardEntity.setTaskId(task.getId());
-        rewardEntity.setUserId(task.getExecutorIds().stream().findFirst().orElse(null));
-        rewardEntity.setTotalSum(task.getRewardsPoints());
-        rewardEntity.setAmount(task.getRewardsPoints());
-        rewardEntity.setCreatedAt(TimeUtils.now());
-        rewardEntity.setUpdatedAt(TimeUtils.now());
-        rewardEntity.setUpdatedBy(null);
-        rewardEntity.setDescription(null);
-
-        return rewardEntity;
-    }
-
-    private UserEntity createUser() {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName("user name");
-        userEntity.setAdmin(false);
-        userEntity.setCreatedAt(TimeUtils.now());
-        userEntity.setUpdatedAt(TimeUtils.now());
-        userRepository.save(userEntity);
-        return userEntity;
-    }
-
-    private TaskEntity buildCompletedTaskEntity(Integer userId) {
-
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setId(UUID.randomUUID().toString());
-        taskEntity.setName("Name of task");
-        taskEntity.setDescription("Description of task");
-        taskEntity.setPriority((TaskPriority.HIGH.name()));
-        taskEntity.setReporterId(userId);
-        taskEntity.setExecutorIds(Set.of(userId));
-        taskEntity.setConfidential(false);
-        taskEntity.setDeadline(LocalDate.from(TimeUtils.now().plusDays(1)));
-        taskEntity.setCreatedAt(TimeUtils.now());
-        taskEntity.setUpdatedAt(TimeUtils.now());
-        taskEntity.setStatus(TaskStatus.COMPLETED.name());
-        taskEntity.setRewardsPoints(randomInt(1, 100));
-
-        return taskEntity;
-    }
-
-    private Integer createGroup(Integer ownerId) {
-        GroupEntity groupEntity = GroupEntity.builder()
-                .ownerId(ownerId)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deletedAt(null)
-                .build();
-        groupRepository.save(groupEntity);
-        return groupEntity.getId();
     }
 }

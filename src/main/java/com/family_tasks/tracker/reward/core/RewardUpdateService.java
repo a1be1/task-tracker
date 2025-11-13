@@ -8,6 +8,7 @@ import com.family_tasks.tracker.reward.model.entity.RewardEntity;
 import com.family_tasks.tracker.reward.model.mapper.RewardUpdateMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,10 +23,11 @@ public class RewardUpdateService {
     private final RewardUpdateMapper mapper;
     private final RewardValidateService validateService;
 
+    @Transactional
     public RewardApiResponse updateReward(String rewardId, RewardUpdateApiRequest updateApiRequest) {
         RewardEntity rewardEntity = rewardRepository.findById(rewardId).orElseThrow(() -> rewardNotFound(rewardId));
 
-        validateService.validateRewardUpdating(updateApiRequest.getUpdatedBy(), rewardEntity.getUserId());
+        validateService.validateRewardUpdating(updateApiRequest.getUpdatedBy(), rewardEntity);
 
         int totalSumDelta = updateApiRequest.getAmount() - rewardEntity.getAmount();
 

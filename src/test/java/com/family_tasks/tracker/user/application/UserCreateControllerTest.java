@@ -2,20 +2,15 @@ package com.family_tasks.tracker.user.application;
 
 import com.family_tasks.tracker.AbstractIntegrationTest;
 import com.family_tasks.tracker.common.error.ErrorResponse;
-import com.family_tasks.tracker.common.utils.TimeUtils;
-import com.family_tasks.tracker.group.infrastructure.GroupRepository;
-import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
-import com.family_tasks.tracker.user.model.dto.UserCreateApiRequest;
 import com.family_tasks.tracker.user.model.dto.UserApiResponse;
+import com.family_tasks.tracker.user.model.dto.UserCreateApiRequest;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import com.family_tasks.tracker.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.time.LocalDateTime;
 
 import static com.family_tasks.tracker.common.validation.ValidationConstants.USER_NAME_MAX_LENGTH;
 import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
@@ -28,8 +23,6 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
-    @Autowired
-    GroupRepository groupRepository;
 
     @Test
     void withoutGroup_createUser() {
@@ -53,8 +46,8 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void withGroup_createUser() {
         //prepare
-        Integer ownerId = createUser();
-        Integer groupId = createGroup(ownerId);
+        UserEntity owner = createUserEntity();
+        Integer groupId = createGroupEntity(owner.getId());
         UserCreateApiRequest request = buildRequest()
                 .groupId(groupId)
                 .build();
@@ -121,8 +114,8 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenGroupNotExist_createUser() {
         //prepare
-        Integer ownerId = createUser();
-        Integer groupId = createGroup(ownerId) + 2;
+        UserEntity owner = createUserEntity();
+        Integer groupId = createGroupEntity(owner.getId()) + 2;
         UserCreateApiRequest request = buildRequest()
                 .groupId(groupId)
                 .build();
@@ -140,27 +133,5 @@ class UserCreateControllerTest extends AbstractIntegrationTest {
                 .name("user1")
                 .admin(true)
                 .groupId(null);
-    }
-
-    private Integer createGroup(Integer ownerId) {
-        GroupEntity groupEntity = GroupEntity.builder()
-                .ownerId(ownerId)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deletedAt(null)
-                .build();
-        groupRepository.save(groupEntity);
-        return groupEntity.getId();
-    }
-
-    private Integer createUser() {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName("user name");
-        userEntity.setAdmin(false);
-        userEntity.setGroupId(null);
-        userEntity.setCreatedAt(TimeUtils.now());
-        userEntity.setUpdatedAt(TimeUtils.now());
-        userRepository.save(userEntity);
-        return userEntity.getId();
     }
 }
