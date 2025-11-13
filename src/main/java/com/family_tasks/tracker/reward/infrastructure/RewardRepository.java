@@ -14,10 +14,11 @@ import java.util.Optional;
 public interface RewardRepository extends JpaRepository<RewardEntity, String> {
 
     @Query(value = """
-                SELECT r.* FROM rewards r
-                    WHERE user_id = :userId
-                    ORDER BY created_at DESC
-                    LIMIT 1;
+            SELECT r.* FROM rewards r
+            WHERE user_id = :userId
+            ORDER BY created_at DESC
+            LIMIT 1
+            FOR UPDATE;
             """, nativeQuery = true)
     Optional<RewardEntity> findLastByUserIdOrderByCreatedAtDesc(@Param("userId") Integer userId);
 
