@@ -12,10 +12,13 @@ import java.util.Optional;
 @Repository
 public interface RewardRepository extends JpaRepository<RewardEntity, String> {
 
-    @Query(value = "SELECT r.* FROM rewards r " +
-            "WHERE user_id = :userId " +
-            "ORDER BY created_at DESC " +
-            "LIMIT 1;", nativeQuery = true)
+    @Query(value = """
+            SELECT r.* FROM rewards r
+            WHERE user_id = :userId
+            ORDER BY created_at DESC
+            LIMIT 1
+            FOR UPDATE;
+            """, nativeQuery = true)
     Optional<RewardEntity> findLastByUserIdOrderByCreatedAtDesc(@Param("userId") Integer userId);
 
     @Query(value = "SELECT EXISTS (SELECT 1 FROM rewards r WHERE r.task_id = :taskId)", nativeQuery = true)
