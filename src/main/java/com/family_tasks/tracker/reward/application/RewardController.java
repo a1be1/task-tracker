@@ -39,6 +39,17 @@ public class RewardController {
         return rewardGetService.getRewards(userId);
     }
 
+    @Operation(
+            summary = "Update reward by reward ID",
+            description = """
+                    This endpoint updates an existing reward in the system.
+                  
+                    **Rules and constraints:**
+                    - A user with "admin": false cannot edit rewards.
+                    - Users without a group or belongs to a different group cannot edit rewards.
+                    - The totalSum field is recalculated for all rewards starting from (and including) the modified one.
+                    """
+    )
     @PutMapping(REWARD_URL + "/{rewardId}")
     public RewardApiResponse updateRewardAmount(@PathVariable String rewardId,
                                                 @Valid @RequestBody RewardUpdateApiRequest apiRequest) {

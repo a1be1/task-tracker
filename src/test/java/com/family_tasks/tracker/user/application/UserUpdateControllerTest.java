@@ -57,7 +57,7 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
         //prepare
         UserEntity userEntity = createUserEntity();
         Integer userId = userEntity.getId() + 10;
-        Integer groupId = createGroupEntity(userId);
+        Integer groupId = createGroupEntity(userEntity.getId());
         UserUpdateApiRequest request = buildUpdateRequest(groupId)
                 .build();
         //execute
@@ -75,8 +75,9 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserIsNull_updateUser() {
         //prepare
+        UserEntity userEntity = createUserEntity();
         Integer userId = null;
-        Integer groupId = createGroupEntity(userId);
+        Integer groupId = createGroupEntity(userEntity.getId());
         UserUpdateApiRequest request = buildUpdateRequest(groupId)
                 .build();
         //execute
