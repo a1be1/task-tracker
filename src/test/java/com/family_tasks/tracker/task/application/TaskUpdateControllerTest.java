@@ -12,7 +12,9 @@ import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -22,10 +24,10 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.family_tasks.tracker.common.validation.ValidationConstants.*;
 import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
-import static com.family_tasks.tracker.task.application.TaskController.TASK_URL;
 import static com.family_tasks.tracker.utils.TestUtils.randomInt;
 import static com.family_tasks.tracker.utils.TestUtils.randomString;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,27 +102,6 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(response.getRewardsPoints()).isEqualTo(request.getRewardsPoints());
     }
 
-    @Test
-    void whenPriorityInvalid_updateTask() {
-        //prepare
-        UserEntity reporter = createUserEntity();
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .priority("INVALID_PRIORITY")
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_PRIORITY_INVALID);
-    }
 
     @Test
     void whenExecutorsFromAnotherGroup_updateTask() {
@@ -155,290 +136,6 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void whenPriorityNull_updateTask() {
-        //prepare
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .priority(null)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_PRIORITY_NULL);
-    }
-
-    @Test
-    void whenPriorityEmpty_updateTask() {
-        //prepare
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .priority("")
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_PRIORITY_NULL);
-    }
-
-    @Test
-    void whenEmptyTaskName_updateTask() {
-        //prepare
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .name("")
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_NAME_NOT_SPECIFIED);
-    }
-
-    @Test
-    void whenTaskNameNull_updateTask() {
-        //prepare
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .name(null)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_NAME_NOT_SPECIFIED);
-    }
-
-    @Test
-    void whenTaskNameToLong_updateTask() {
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .name(randomString(TASK_NAME_MAX_LENGTH + 1))
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_NAME_TOO_LONG);
-    }
-
-    @Test
-    void whenTaskDescriptionToLong_updateTask() {
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .description(randomString(TASK_DESCRIPTION_MAX_LENGTH + 1))
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TOO_LONG);
-    }
-
-    @Test
-    void whenTaskDescriptionToShort_updateTask() {
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .description(randomString(TASK_DESCRIPTION_MIN_LENGTH - 1))
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_DESCRIPTION_TOO_SHORT);
-    }
-
-    @Test
-    void whenTaskConfidentialNull_updateTask() {
-        //prepare
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .confidential(null)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED);
-    }
-
-    @Test
-    void whenStatusInvalid_updateTask() {
-        //prepare
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .status("INVALID_STATUS")
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_STATUS_INVALID);
-    }
-
-    @Test
-    void whenStatusNull_updateTask() {
-        //prepare
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .status(null)
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_STATUS_NULL);
-    }
-
-    @Test
-    void whenStatusEmpty_updateTask() {
-        //prepare
-        UserEntity reporter = createUserEntity();
-        Integer groupId = createGroupEntity(reporter.getId());
-        reporter.setGroupId(groupId);
-        userRepository.save(reporter);
-
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .status("")
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_STATUS_NULL);
-    }
-
-    @Test
     void WhenTaskNotExist_updateTask() {
         //prepare
         String taskId = UUID.randomUUID().toString();
@@ -456,33 +153,11 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(String.format(TASK_NOT_EXIST, taskId));
     }
 
-    @Test
-    void whenExecutorNotExist_updateTask() {
-        //prepare
-        UserEntity reporter = createUserEntity();
-        TaskEntity taskEntity = createTaskEntity(reporter.getId());
-        taskRepository.save(taskEntity);
-        String taskId = taskEntity.getId();
-        Integer executorId = createUserEntity().getId() + 1;
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .executorIds(Set.of(executorId))
-                .status("")
-                .build();
-        //execute
-        ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
-                HttpMethod.PUT,
-                new HttpEntity<>(request),
-                ErrorResponse.class);
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(TASK_STATUS_NULL);
-    }
-
-    @Test
-    void whenRewardsPointsZero_updateTask() {
-        //prepare
+    @ParameterizedTest(name = "{index} => {0}")
+    @MethodSource("invalidUpdateTaskProvider")
+    void whenInvalidInput_updateTask(String testName,
+                                     TaskUpdateApiRequest request,
+                                     String expectedMessage) {
         UserEntity reporter = createUserEntity();
         Integer groupId = createGroupEntity(reporter.getId());
         reporter.setGroupId(groupId);
@@ -491,9 +166,7 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         TaskEntity taskEntity = createTaskEntity(reporter.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
-        TaskUpdateApiRequest request = buildUpdateRequest()
-                .rewardsPoints(0)
-                .build();
+
         //execute
         ResponseEntity<ErrorResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId,
                 HttpMethod.PUT,
@@ -503,10 +176,113 @@ public class TaskUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(REWARDS_POINTS_POSITIVE);
+        assertThat(response.errorMessage()).isEqualTo(expectedMessage);
     }
 
-    private TaskUpdateApiRequest.TaskUpdateApiRequestBuilder buildUpdateRequest() {
+    private static Stream<Arguments> invalidUpdateTaskProvider() {
+
+        return Stream.of(
+                Arguments.of(
+                        "When task's priority invalid",
+                        buildUpdateRequest()
+                                .priority("INVALID_PRIORITY")
+                                .build(),
+                        TASK_PRIORITY_INVALID
+                ),
+                Arguments.of(
+                        "When task's priority null",
+                        buildUpdateRequest()
+                                .priority(null)
+                                .build(),
+                        TASK_PRIORITY_NULL
+                ),
+                Arguments.of(
+                        "When task's priority empty",
+                        buildUpdateRequest()
+                                .priority("")
+                                .build(),
+                        TASK_PRIORITY_NULL
+                ),
+                Arguments.of(
+                        "When task's name empty",
+                        buildUpdateRequest()
+                                .name("")
+                                .build(),
+                        TASK_NAME_NOT_SPECIFIED
+                ),
+                Arguments.of(
+                        "When task's name null",
+                        buildUpdateRequest()
+                                .name(null)
+                                .build(),
+                        TASK_NAME_NOT_SPECIFIED
+                ),
+                Arguments.of(
+                        "When task's name to long.",
+                        buildUpdateRequest()
+                                .name(randomString(TASK_NAME_MAX_LENGTH + 1))
+                                .build(),
+                        TASK_NAME_TOO_LONG
+                ),
+                Arguments.of(
+                        "When task's description to long.",
+                        buildUpdateRequest()
+                                .description(randomString(TASK_DESCRIPTION_MAX_LENGTH + 1))
+                                .build(),
+                        TASK_DESCRIPTION_TOO_LONG
+                ),
+                Arguments.of(
+                        "When task's description to short.",
+                        buildUpdateRequest()
+                                .description(randomString(TASK_DESCRIPTION_MIN_LENGTH - 1))
+                                .build(),
+                        TASK_DESCRIPTION_TOO_SHORT
+                ),
+                Arguments.of(
+                        "When task's confidential status not specified.",
+                        buildUpdateRequest()
+                                .confidential(null)
+                                .build(),
+                        TASK_CONFIDENTIAL_STATUS_NOT_SPECIFIED
+                ),
+                Arguments.of(
+                        "When task's status is invalid.",
+                        buildUpdateRequest()
+                                .status("INVALID_STATUS")
+                                .build(),
+                        TASK_STATUS_INVALID
+                ),
+                Arguments.of(
+                        "When task's status is null.",
+                        buildUpdateRequest()
+                                .status(null)
+                                .build(),
+                        TASK_STATUS_NULL
+                ),
+                Arguments.of(
+                        "When task's status is empty.",
+                        buildUpdateRequest()
+                                .status("")
+                                .build(),
+                        TASK_STATUS_NULL
+                ),
+                Arguments.of(
+                        "When task's executor not exist.",
+                        buildUpdateRequest()
+                                .executorIds(Set.of(Integer.MAX_VALUE))
+                                .build(),
+                        String.format(USER_NOT_EXIST, Integer.MAX_VALUE)
+                ),
+                Arguments.of(
+                        "When task's rewards point zero.",
+                        buildUpdateRequest()
+                                .rewardsPoints(0)
+                                .build(),
+                        REWARDS_POINTS_POSITIVE)
+        );
+    }
+
+    private static TaskUpdateApiRequest.TaskUpdateApiRequestBuilder buildUpdateRequest() {
         return TaskUpdateApiRequest.builder()
                 .name("Name after update")
                 .description("Description after update")

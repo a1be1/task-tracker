@@ -2,9 +2,6 @@ package com.family_tasks.tracker.task.application;
 
 import com.family_tasks.tracker.AbstractIntegrationTest;
 import com.family_tasks.tracker.common.error.ErrorResponse;
-import com.family_tasks.tracker.common.utils.TimeUtils;
-import com.family_tasks.tracker.group.infrastructure.GroupRepository;
-import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
 import com.family_tasks.tracker.task.model.dto.TaskCreateApiRequest;
@@ -23,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -170,22 +166,6 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(CREATE_OR_UPDATE_TASK_FOR_OWN_GROUP);
     }
 
-    @ParameterizedTest(name = "{index} => {0}")
-    @MethodSource("invalidCreateTaskProvider")
-    void whenInvalidInput_createTask_shouldReturnBadRequest(String testName,
-                                                            TaskCreateApiRequest request,
-                                                            String expectedMessage) {
-        // execute
-        ResponseEntity<ErrorResponse> responseEntity =
-                client.postForEntity(TaskController.TASK_URL, request, ErrorResponse.class);
-
-        // validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        ErrorResponse response = responseEntity.getBody();
-        assertThat(response).isNotNull();
-        assertThat(response.errorMessage()).isEqualTo(expectedMessage);
-    }
-
     @Test
     void whenTaskReporterNotExist_createTask() {
         //prepare
@@ -220,6 +200,22 @@ public class TaskCreateControllerTest extends AbstractIntegrationTest {
         ErrorResponse response = responseEntity.getBody();
         assertThat(response).isNotNull();
         assertThat(response.errorMessage()).isEqualTo(String.format(USER_NOT_EXIST, executorId));
+    }
+
+    @ParameterizedTest(name = "{index} => {0}")
+    @MethodSource("invalidCreateTaskProvider")
+    void whenInvalidInput_createTask(String testName,
+                                     TaskCreateApiRequest request,
+                                     String expectedMessage) {
+        // execute
+        ResponseEntity<ErrorResponse> responseEntity =
+                client.postForEntity(TaskController.TASK_URL, request, ErrorResponse.class);
+
+        // validate
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ErrorResponse response = responseEntity.getBody();
+        assertThat(response).isNotNull();
+        assertThat(response.errorMessage()).isEqualTo(expectedMessage);
     }
 
     private static Stream<Arguments> invalidCreateTaskProvider() {
