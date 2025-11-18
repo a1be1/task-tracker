@@ -29,8 +29,14 @@ public interface ValidationMessage {
     String GROUP_NOT_EXIST = "Group with id %d doesn't exist.";
     String ID_HAS_INVALID_FORMAT = "The provided ID has an invalid format.";
     String GROUP_NOT_SPECIFIED = "A group isn't specified.";
-    String INCORRECT_REQUEST_FORMAT = "Incorrect request format. Check data types.";
     String CREATE_TASK_WITHOUT_GROUP = "To create a task you need to join a group or create a new one.";
     String CREATE_OR_UPDATE_TASK_FOR_OWN_GROUP = "A task can be created or updated only for users from own group.";
     String REWARDS_POINTS_POSITIVE = "Reward points cannot be negative.";
+    String VALIDATION_FAILED = "Validation failed";
+    String REWARD_NOT_EXIST = "Reward with id %s doesn't exist.";
+    String REWARD_DESCRIPTION_TOO_LONG = "A reward description length shouldn't be more than " + REWARD_DESCRIPTION_MAX_LENGTH + ".";
+    String REWARD_DESCRIPTION_TOO_SHORT = "A task description length shouldn't be less than " + REWARD_DESCRIPTION_MIN_LENGTH + ".";
+    String USER_NOT_ADMIN = "Only the admin can edit rewards.";
+    String REWARD_AMOUNT_NULL = "Amount must be specified.";
+    String REWARD_DESCRIPTION_NULL = "Description must be specified.";
 }

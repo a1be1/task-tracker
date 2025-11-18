@@ -2,8 +2,6 @@ package com.family_tasks.tracker.user.application;
 
 import com.family_tasks.tracker.AbstractIntegrationTest;
 import com.family_tasks.tracker.common.error.ErrorResponse;
-import com.family_tasks.tracker.group.infrastructure.GroupRepository;
-import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.dto.UserApiResponse;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
@@ -16,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
@@ -28,13 +25,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserGetControllerTest extends AbstractIntegrationTest {
     @Autowired
     UserRepository userRepository;
-    @Autowired
-    GroupRepository groupRepository;
 
     @Test
     void whenUserExist_getUser() {
         //prepare
-        UserEntity userEntity = buildUserEntity();
+        UserEntity userEntity = createUserEntity();
         userRepository.save(userEntity);
         Integer userId = userEntity.getId();
         String url = UriComponentsBuilder
@@ -51,7 +46,7 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserNotExist_getUser() {
         //prepare
-        UserEntity userEntity = buildUserEntity();
+        UserEntity userEntity = createUserEntity();
         userRepository.save(userEntity);
         Integer userId = userEntity.getId() + 1;
         String url = UriComponentsBuilder
@@ -87,13 +82,13 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserIsGroupOwner_getAllUsers() {
         //prepare
-        UserEntity groupOwner = buildUserEntity();
+        UserEntity groupOwner = createUserEntity();
         userRepository.save(groupOwner);
         Integer ownerId = groupOwner.getId();
-        Integer groupId = createGroup(ownerId);
+        Integer groupId = createGroupEntity(ownerId);
         groupOwner.setGroupId(groupId);
         userRepository.save(groupOwner);
-        UserEntity memberGroup = buildUserEntity();
+        UserEntity memberGroup = createUserEntity();
         memberGroup.setGroupId(groupId);
         userRepository.save(memberGroup);
 
@@ -122,9 +117,9 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
     @Test
     void whenGroupNotExist_getAllUsers() {
         //prepare
-        UserEntity owner = buildUserEntity();
+        UserEntity owner = createUserEntity();
         userRepository.save(owner);
-        Integer groupId = createGroup(owner.getId()) + 1;
+        Integer groupId = createGroupEntity(owner.getId()) + 1;
 
         String url = UriComponentsBuilder
                 .fromUriString(UserController.USER_URL)
@@ -157,17 +152,6 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(ID_HAS_INVALID_FORMAT);
     }
 
-    private UserEntity buildUserEntity() {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName("user name");
-        userEntity.setAdmin(false);
-        userEntity.setGroupId(null);
-        userEntity.setCreatedAt(LocalDateTime.now());
-        userEntity.setUpdatedAt(LocalDateTime.now());
-
-        return userEntity;
-    }
-
     private UserApiResponse toApiResponse(UserEntity userEntity) {
         return UserApiResponse.builder()
                 .userId(userEntity.getId())
@@ -175,16 +159,5 @@ public class UserGetControllerTest extends AbstractIntegrationTest {
                 .groupId(userEntity.getGroupId())
                 .name(userEntity.getName())
                 .build();
-    }
-
-    private Integer createGroup(Integer ownerId) {
-        GroupEntity groupEntity = GroupEntity.builder()
-                .ownerId(ownerId)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deletedAt(null)
-                .build();
-        groupRepository.save(groupEntity);
-        return groupEntity.getId();
     }
 }

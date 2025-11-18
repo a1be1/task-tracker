@@ -2,9 +2,7 @@ package com.family_tasks.tracker.user.application;
 
 import com.family_tasks.tracker.AbstractIntegrationTest;
 import com.family_tasks.tracker.common.error.ErrorResponse;
-import com.family_tasks.tracker.common.utils.TimeUtils;
 import com.family_tasks.tracker.group.infrastructure.GroupRepository;
-import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.dto.UserApiResponse;
 import com.family_tasks.tracker.user.model.dto.UserUpdateApiRequest;
@@ -15,8 +13,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.time.LocalDateTime;
 
 import static com.family_tasks.tracker.common.validation.ValidationMessage.*;
 import static com.family_tasks.tracker.utils.TestUtils.randomBoolean;
@@ -34,9 +30,9 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserExist_updateUser() {
         //prepare
-        UserEntity userEntity = createUser();
+        UserEntity userEntity = createUserEntity();
         Integer userId = userEntity.getId();
-        Integer groupId = createGroup();
+        Integer groupId = createGroupEntity(userId);
         UserUpdateApiRequest request = buildUpdateRequest(groupId).build();
         //execute
         ResponseEntity<UserApiResponse> responseEntity = client.exchange(UserController.USER_URL + "/" + userId,
@@ -55,9 +51,9 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserNotExist_updateUser() {
         //prepare
-        UserEntity userEntity = createUser();
+        UserEntity userEntity = createUserEntity();
         Integer userId = userEntity.getId() + 10;
-        Integer groupId = createGroup();
+        Integer groupId = createGroupEntity(userEntity.getId());
         UserUpdateApiRequest request = buildUpdateRequest(groupId)
                 .build();
         //execute
@@ -75,8 +71,9 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenUserIsNull_updateUser() {
         //prepare
+        UserEntity userEntity = createUserEntity();
         Integer userId = null;
-        Integer groupId = createGroup();
+        Integer groupId = createGroupEntity(userEntity.getId());
         UserUpdateApiRequest request = buildUpdateRequest(groupId)
                 .build();
         //execute
@@ -95,9 +92,9 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenNameIsNull_updateUser() {
         //prepare
-        UserEntity userEntity = createUser();
+        UserEntity userEntity = createUserEntity();
         Integer userId = userEntity.getId();
-        Integer groupId = createGroup();
+        Integer groupId = createGroupEntity(userId);
         UserUpdateApiRequest request = buildUpdateRequest(groupId)
                 .name(null)
                 .build();
@@ -116,9 +113,9 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenNameIsEmpty_updateUser() {
         //prepare
-        UserEntity userEntity = createUser();
+        UserEntity userEntity = createUserEntity();
         Integer userId = userEntity.getId();
-        Integer groupId = createGroup();
+        Integer groupId = createGroupEntity(userId);
         UserUpdateApiRequest request = buildUpdateRequest(groupId)
                 .name("")
                 .build();
@@ -137,9 +134,9 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenAdminIsNull_updateUser() {
         //prepare
-        UserEntity userEntity = createUser();
+        UserEntity userEntity = createUserEntity();
         Integer userId = userEntity.getId();
-        Integer groupId = createGroup();
+        Integer groupId = createGroupEntity(userId);
         UserUpdateApiRequest request = buildUpdateRequest(groupId)
                 .admin(null)
                 .build();
@@ -158,9 +155,9 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
     @Test
     void whenGroupNotExist_updateUser() {
         //prepare
-        UserEntity userEntity = createUser();
+        UserEntity userEntity = createUserEntity();
         Integer userId = userEntity.getId();
-        Integer groupId = createGroup() + 10;
+        Integer groupId = createGroupEntity(userId) + 10;
         UserUpdateApiRequest request = buildUpdateRequest(groupId)
                 .groupId(groupId)
                 .build();
@@ -176,33 +173,10 @@ public class UserUpdateControllerTest extends AbstractIntegrationTest {
         assertThat(response.errorMessage()).isEqualTo(String.format(GROUP_NOT_EXIST, groupId));
     }
 
-    private UserEntity createUser() {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName("user name");
-        userEntity.setAdmin(false);
-        userEntity.setGroupId(null);
-        userEntity.setCreatedAt(TimeUtils.now());
-        userEntity.setUpdatedAt(TimeUtils.now());
-        userRepository.save(userEntity);
-        return userEntity;
-    }
-
     private UserUpdateApiRequest.UserUpdateApiRequestBuilder buildUpdateRequest(Integer groupId) {
         return UserUpdateApiRequest.builder()
                 .name("Name after update")
                 .groupId(groupId)
                 .admin(randomBoolean());
-    }
-
-    private Integer createGroup() {
-        UserEntity owner = createUser();
-        GroupEntity groupEntity = GroupEntity.builder()
-                .ownerId(owner.getId())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deletedAt(null)
-                .build();
-        groupRepository.save(groupEntity);
-        return groupEntity.getId();
     }
 }

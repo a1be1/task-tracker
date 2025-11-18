@@ -1,0 +1,40 @@
+@startuml
+title 3-Layer Architecture (Application / Core / Infrastructure)
+
+skinparam component {
+  BorderColor Black
+  BackgroundColor lightyellow-lightgreen
+  ArrowColor Black
+
+}
+
+package "Task Tracker" #lightyellow{
+
+  component "Application Layer" {
+    [REST API] as API
+    [Controller] as Ctrl
+  }
+
+  component "Core Layer" {
+    [Core Services] as Core
+    [Validation] as Valid
+    [Business Logic] as Logic
+  }
+
+  component "Infrastructure Layer" {
+    [Repositories] as Repo
+  }
+
+  API --> Ctrl : converts\njson to\nDTO
+  Ctrl --> Core : passes DTO
+  Core --> Valid
+  Core --> Repo : converts to\nDB entities
+}
+
+component "Database" #lightblue {
+    [PostgreSQL] as DB #white-lightblue
+}
+
+Repo --> DB
+
+@enduml

@@ -1,8 +1,6 @@
-package com.family_tasks.tracker.reward;
+package com.family_tasks.tracker.reward.core;
 
 import com.family_tasks.tracker.AbstractIntegrationTest;
-import com.family_tasks.tracker.group.infrastructure.GroupRepository;
-import com.family_tasks.tracker.group.model.entity.GroupEntity;
 import com.family_tasks.tracker.reward.infrastructure.RewardRepository;
 import com.family_tasks.tracker.reward.model.entity.RewardEntity;
 import com.family_tasks.tracker.task.application.TaskController;
@@ -23,11 +21,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.family_tasks.tracker.utils.TestUtils.randomInt;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -42,19 +38,17 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
     @Autowired
     UserRepository userRepository;
     @Autowired
-    GroupRepository groupRepository;
-    @Autowired
     RewardRepository rewardRepository;
 
     @Test
     void WhenTaskCompleted_addReward() {
         //prepare
-        UserEntity user = createUser(null);
-        Integer groupId = createGroup(user.getId());
+        UserEntity user = createUserEntity();
+        Integer groupId = createGroupEntity(user.getId());
         user.setGroupId(groupId);
         userRepository.save(user);
 
-        TaskEntity taskEntity = buildTaskEntity(user.getId());
+        TaskEntity taskEntity = createTaskEntity(user.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
 
@@ -78,19 +72,21 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
     @Test
     void WhenTaskHasManyExecutors_addReward() {
         //prepare
-        UserEntity user = createUser(null);
-        Integer groupId = createGroup(user.getId());
+        UserEntity user = createUserEntity();
+        Integer groupId = createGroupEntity(user.getId());
         user.setGroupId(groupId);
         userRepository.save(user);
 
         Set<Integer> executorsIds = new HashSet<>();
 
         for (int i = 0; i < 10; i++) {
-            UserEntity executorUser = createUser(groupId);
+            UserEntity executorUser = createUserEntity();
+            executorUser.setGroupId(groupId);
+            userRepository.save(executorUser);
             executorsIds.add(executorUser.getId());
         }
 
-        TaskEntity taskEntity = buildTaskEntity(user.getId());
+        TaskEntity taskEntity = createTaskEntity(user.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
 
@@ -114,12 +110,12 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
 
     @Test
     void whenTwoTasksCompleted_addReward() {
-        UserEntity user = createUser(null);
-        Integer groupId = createGroup(user.getId());
+        UserEntity user = createUserEntity();
+        Integer groupId = createGroupEntity(user.getId());
         user.setGroupId(groupId);
         userRepository.save(user);
 
-        TaskEntity taskEntity1 = buildTaskEntity(user.getId());
+        TaskEntity taskEntity1 = createTaskEntity(user.getId());
         taskRepository.save(taskEntity1);
         String taskId1 = taskEntity1.getId();
 
@@ -128,7 +124,7 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
                 .status(TaskStatus.COMPLETED.name())
                 .build();
 
-        TaskEntity taskEntity2 = buildTaskEntity(user.getId());
+        TaskEntity taskEntity2 = createTaskEntity(user.getId());
         taskRepository.save(taskEntity2);
         String taskId2 = taskEntity2.getId();
 
@@ -157,12 +153,12 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
     @Test
     void WhenOneTaskCompletedTwice_addReward() {
         //prepare
-        UserEntity user = createUser(null);
-        Integer groupId = createGroup(user.getId());
+        UserEntity user = createUserEntity();
+        Integer groupId = createGroupEntity(user.getId());
         user.setGroupId(groupId);
         userRepository.save(user);
 
-        TaskEntity taskEntity = buildTaskEntity(user.getId());
+        TaskEntity taskEntity = createTaskEntity(user.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
 
@@ -190,12 +186,12 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
     void whenTaskNotCompleted_addReward(TaskStatus taskStatus) {
         if (!taskStatus.equals(TaskStatus.COMPLETED)) {
             //prepare
-            UserEntity user = createUser(null);
-            Integer groupId = createGroup(user.getId());
+            UserEntity user = createUserEntity();
+            Integer groupId = createGroupEntity(user.getId());
             user.setGroupId(groupId);
             userRepository.save(user);
 
-            TaskEntity taskEntity = buildTaskEntity(user.getId());
+            TaskEntity taskEntity = createTaskEntity(user.getId());
             taskRepository.save(taskEntity);
             String taskId = taskEntity.getId();
 
@@ -213,12 +209,12 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
     @Test
     void WhenRewardsPointsNull_addReward() {
         //prepare
-        UserEntity user = createUser(null);
-        Integer groupId = createGroup(user.getId());
+        UserEntity user = createUserEntity();
+        Integer groupId = createGroupEntity(user.getId());
         user.setGroupId(groupId);
         userRepository.save(user);
 
-        TaskEntity taskEntity = buildTaskEntity(user.getId());
+        TaskEntity taskEntity = createTaskEntity(user.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
 
@@ -236,12 +232,12 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
     @Test
     void WhenExecutorsNull_addReward() {
         //prepare
-        UserEntity user = createUser(null);
-        Integer groupId = createGroup(user.getId());
+        UserEntity user = createUserEntity();
+        Integer groupId = createGroupEntity(user.getId());
         user.setGroupId(groupId);
         userRepository.save(user);
 
-        TaskEntity taskEntity = buildTaskEntity(user.getId());
+        TaskEntity taskEntity = createTaskEntity(user.getId());
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
 
@@ -264,17 +260,6 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
         assertThat(rewardEntity.getUpdatedAt()).isNotNull();
     }
 
-    private UserEntity createUser(Integer groupId) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName("user name");
-        userEntity.setAdmin(false);
-        userEntity.setCreatedAt(LocalDateTime.now());
-        userEntity.setUpdatedAt(LocalDateTime.now());
-        userEntity.setGroupId(groupId);
-        userRepository.save(userEntity);
-        return userEntity;
-    }
-
     private TaskUpdateApiRequest.TaskUpdateApiRequestBuilder buildUpdateRequest() {
         return TaskUpdateApiRequest.builder()
                 .name("Name after update")
@@ -285,30 +270,5 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
                 .priority(TaskPriority.LOW.name())
                 .status(TaskStatus.TO_DO.name())
                 .rewardsPoints(randomInt(1, 100));
-    }
-
-    private TaskEntity buildTaskEntity(Integer reporterId) {
-
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setId(UUID.randomUUID().toString());
-        taskEntity.setName("Name of task");
-        taskEntity.setDescription("Description of task");
-        taskEntity.setPriority((TaskPriority.HIGH.name()));
-        taskEntity.setReporterId(reporterId);
-        taskEntity.setExecutorIds(Set.of());
-        taskEntity.setConfidential(false);
-        taskEntity.setDeadline(LocalDate.now().plusDays(1));
-        taskEntity.setCreatedAt(LocalDateTime.now());
-        taskEntity.setUpdatedAt(LocalDateTime.now());
-        taskEntity.setStatus(TaskStatus.TO_DO.name());
-        taskEntity.setRewardsPoints(null);
-
-        return taskEntity;
-    }
-
-    private Integer createGroup(Integer ownerId) {
-        GroupEntity groupEntity = GroupEntity.builder().ownerId(ownerId).createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).deletedAt(null).build();
-        groupRepository.save(groupEntity);
-        return groupEntity.getId();
     }
 }
