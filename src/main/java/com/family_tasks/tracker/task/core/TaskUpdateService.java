@@ -43,9 +43,9 @@ public class TaskUpdateService {
     private void rewardsAccrual(TaskEntity task) {
         if (Objects.equals(task.getStatus(), TaskStatus.COMPLETED.name())
                 && task.getRewardsPoints() != null
-                && task.getExecutorIds() != null
-                && !rewardRepository.existByTaskId(task.getId())) {
-            task.getExecutorIds().stream().map(executorId -> rewardAccrualRequest(executorId, task))
+                && task.getExecutorIds() != null) {
+            task.getExecutorIds().stream()
+                    .map(executorId -> rewardAccrualRequest(executorId, task))
                     .forEach(rewardAccrualService::accrualReward);
         }
     }
