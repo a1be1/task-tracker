@@ -35,15 +35,16 @@ public class RewardController {
     @GetMapping(REWARD_URL)
     public List<RewardApiResponse> getRewards(@NotNull(message = USER_NOT_SPECIFIED)
                                               @RequestParam(name = "userId", required = false)
-                                              Integer userId) {
-        return rewardGetService.getRewards(userId);
+                                              Integer userId,
+                                              @RequestParam(defaultValue = "0") int page) {
+        return rewardGetService.getRewards(userId, page);
     }
 
     @Operation(
             summary = "Update reward by reward ID",
             description = """
                     This endpoint updates an existing reward in the system.
-                  
+                    
                     **Rules and constraints:**
                     - A user with "admin": false cannot edit rewards.
                     - Users without a group or belongs to a different group cannot edit rewards.
