@@ -22,8 +22,8 @@ public interface RewardRepository extends JpaRepository<RewardEntity, String> {
             """, nativeQuery = true)
     Optional<RewardEntity> findLastByUserIdOrderByCreatedAtDesc(@Param("userId") Integer userId);
 
-    @Query(value = "SELECT EXISTS (SELECT 1 FROM rewards r WHERE r.task_id = :taskId)", nativeQuery = true)
-    Boolean existByTaskId(@Param("taskId") String taskId);
+    @Query(value = "SELECT EXISTS (SELECT 1 FROM rewards r WHERE r.task_id = :taskId AND r.user_id = :userId)", nativeQuery = true)
+    Boolean existByTaskIdAndUserId(@Param("taskId") String taskId, @Param("userId") Integer userId);
 
     @Query(value = "SELECT r.* FROM rewards r WHERE r.task_id = :taskId", nativeQuery = true)
     List<RewardEntity> findByTaskId(@Param("taskId") String taskId);

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.family_tasks.tracker.utils.TestUtils.randomInt;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test for {@link com.family_tasks.tracker.reward.core.RewardAccrualService}
@@ -98,7 +98,11 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
         ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(updateApiRequest), TaskApiResponse.class);
         List<RewardEntity> rewardEntityList = rewardRepository.findByTaskId(taskId);
         //validate
-        assertThat(rewardEntityList.stream().map(RewardEntity::getUserId).toList().containsAll(executorsIds));
+        assertThat(
+                rewardEntityList.stream()
+                        .map(RewardEntity::getUserId)
+                        .toList())
+                .containsAll(executorsIds);
 
         TaskApiResponse taskApiResponse = responseEntity.getBody();
         RewardEntity rewardEntity = rewardEntityList.getFirst();
@@ -151,7 +155,7 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void WhenOneTaskCompletedTwice_addReward() {
+    void WhenOneTaskCompletedTwiceForSameUser_addReward() {
         //prepare
         UserEntity user = createUserEntity();
         Integer groupId = createGroupEntity(user.getId());
@@ -162,16 +166,17 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
         taskRepository.save(taskEntity);
         String taskId = taskEntity.getId();
 
+        createRewardEntity(taskEntity);
+
         TaskUpdateApiRequest updateApiRequest = buildUpdateRequest()
                 .executorIds(Set.of(user.getId()))
                 .status(TaskStatus.COMPLETED.name())
                 .build();
         //execute
-        ResponseEntity<TaskApiResponse> responseEntity1 = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(updateApiRequest), TaskApiResponse.class);
-        ResponseEntity<TaskApiResponse> responseEntity2 = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(updateApiRequest), TaskApiResponse.class);
+        ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(updateApiRequest), TaskApiResponse.class);
         List<RewardEntity> rewardEntityList = rewardRepository.findByTaskId(taskId);
         //validate
-        TaskApiResponse taskApiResponse = responseEntity2.getBody();
+        TaskApiResponse taskApiResponse = responseEntity.getBody();
         RewardEntity rewardEntity = rewardEntityList.getFirst();
 
         assertThat(rewardEntityList.size()).isEqualTo(1);
@@ -179,6 +184,43 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
         assertThat(rewardEntity.getUserId()).isEqualTo(taskApiResponse.getExecutorIds().stream().findFirst().orElse(null));
 
         checkFieldsForTaskResponseAndRewardEntity(taskApiResponse, rewardEntity);
+    }
+
+    @Test
+    void WhenOneTaskCompletedTwiceForAnotherUser_addReward() {
+        //prepare
+        UserEntity user_1 = createUserEntity();
+        Integer groupId = createGroupEntity(user_1.getId());
+        user_1.setGroupId(groupId);
+        userRepository.save(user_1);
+
+        TaskEntity taskEntity = createTaskEntity(user_1.getId());
+        taskRepository.save(taskEntity);
+        String taskId = taskEntity.getId();
+
+        RewardEntity rewardEntity = createRewardEntity(taskEntity);
+        rewardRepository.save(rewardEntity);
+
+        UserEntity user_2 = createUserEntity();
+        user_2.setGroupId(groupId);
+        userRepository.save(user_2);
+
+        TaskUpdateApiRequest updateApiRequest = buildUpdateRequest()
+                .executorIds(Set.of(user_1.getId(), user_2.getId()))
+                .status(TaskStatus.COMPLETED.name())
+                .rewardsPoints(taskEntity.getRewardsPoints())
+                .build();
+        //execute
+        ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(updateApiRequest), TaskApiResponse.class);
+        List<RewardEntity> rewardEntityList = rewardRepository.findByTaskId(taskId);
+        //validate
+        assertThat(rewardEntityList.size()).isEqualTo(2);
+        TaskApiResponse taskApiResponse = responseEntity.getBody();
+        for (RewardEntity entity : rewardEntityList) {
+            assertThat(entity.getTotalSum()).isEqualTo(taskApiResponse.getRewardsPoints());
+            assertThat(taskApiResponse.getExecutorIds()).contains(entity.getUserId());
+            checkFieldsForTaskResponseAndRewardEntity(taskApiResponse, entity);
+        }
     }
 
     @EnumSource(value = TaskStatus.class)
@@ -202,7 +244,7 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
             //execute
             ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(updateApiRequest), TaskApiResponse.class);
             //validate
-            assertThat(rewardRepository.existByTaskId(taskId)).isFalse();
+            assertThat(rewardRepository.existByTaskIdAndUserId(taskId, user.getId())).isFalse();
         }
     }
 
@@ -226,7 +268,7 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
         //execute
         ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(updateApiRequest), TaskApiResponse.class);
         //validate
-        assertThat(rewardRepository.existByTaskId(taskId)).isFalse();
+        assertThat(rewardRepository.existByTaskIdAndUserId(taskId, user.getId())).isFalse();
     }
 
     @Test
@@ -248,7 +290,7 @@ public class AccrualRewardTest extends AbstractIntegrationTest {
         //execute
         ResponseEntity<TaskApiResponse> responseEntity = client.exchange(TaskController.TASK_URL + "/" + taskId, HttpMethod.PUT, new HttpEntity<>(updateApiRequest), TaskApiResponse.class);
         //validate
-        assertThat(rewardRepository.existByTaskId(taskId)).isFalse();
+        assertThat(rewardRepository.existByTaskIdAndUserId(taskId, user.getId())).isFalse();
     }
 
     private void checkFieldsForTaskResponseAndRewardEntity(TaskApiResponse taskApiResponse, RewardEntity rewardEntity) {
