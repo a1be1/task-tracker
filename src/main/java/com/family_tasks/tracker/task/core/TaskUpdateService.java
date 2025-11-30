@@ -1,7 +1,6 @@
 package com.family_tasks.tracker.task.core;
 
 import com.family_tasks.tracker.reward.core.RewardAccrualService;
-import com.family_tasks.tracker.reward.infrastructure.RewardRepository;
 import com.family_tasks.tracker.reward.model.dto.RewardAccrualRequest;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.dto.TaskApiResponse;
@@ -11,6 +10,7 @@ import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import com.family_tasks.tracker.task.model.mapper.TaskUpdateMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -25,7 +25,6 @@ public class TaskUpdateService {
     private final TaskUpdateMapper mapper;
     private final TaskValidateService validateService;
     private final RewardAccrualService rewardAccrualService;
-    private final RewardRepository rewardRepository;
 
     public TaskApiResponse updateTask(String id, TaskUpdateApiRequest apiRequest) {
         validateService.validateTaskUpdating(apiRequest, id);
@@ -43,7 +42,7 @@ public class TaskUpdateService {
     private void rewardsAccrual(TaskEntity task) {
         if (Objects.equals(task.getStatus(), TaskStatus.COMPLETED.name())
                 && task.getRewardsPoints() != null
-                && task.getExecutorIds() != null) {
+                && !CollectionUtils.isEmpty(task.getExecutorIds())) {
             task.getExecutorIds().stream()
                     .map(executorId -> rewardAccrualRequest(executorId, task))
                     .forEach(rewardAccrualService::accrualReward);
