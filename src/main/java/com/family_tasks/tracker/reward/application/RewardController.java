@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
 
@@ -32,11 +32,12 @@ public class RewardController {
                     doesn't have any rewards, it returns an empty list.
                     """
     )
+
     @GetMapping(REWARD_URL)
-    public List<RewardApiResponse> getRewards(@NotNull(message = USER_NOT_SPECIFIED)
-                                              @RequestParam(name = "userId", required = false)
-                                              Integer userId,
-                                              @RequestParam(defaultValue = "0") int page) {
+    public Slice<RewardApiResponse> getRewards(@NotNull(message = USER_NOT_SPECIFIED)
+                                               @RequestParam(name = "userId", required = false)
+                                               Integer userId,
+                                               Pageable page) {
         return rewardGetService.getRewards(userId, page);
     }
 
