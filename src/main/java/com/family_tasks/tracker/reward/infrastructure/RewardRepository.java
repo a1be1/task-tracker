@@ -1,6 +1,8 @@
 package com.family_tasks.tracker.reward.infrastructure;
 
 import com.family_tasks.tracker.reward.model.entity.RewardEntity;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,9 +33,8 @@ public interface RewardRepository extends JpaRepository<RewardEntity, String> {
     @Query(value = """
                 SELECT r.* FROM rewards r
                     WHERE user_id = :userId
-                    ORDER BY created_at DESC
             """, nativeQuery = true)
-    List<RewardEntity> findByUserIdOrderByCreatedAtDesc(@Param("userId") Integer userId);
+    Slice<RewardEntity> findByUserId(@Param("userId") Integer userId, Pageable pageable);
 
     @Query(value = """
                 SELECT r.* FROM rewards r
