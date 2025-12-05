@@ -8,6 +8,7 @@ import com.family_tasks.tracker.reward.model.entity.RewardEntity;
 import com.family_tasks.tracker.task.infrastructure.TaskRepository;
 import com.family_tasks.tracker.task.model.entity.TaskEntity;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
+import com.family_tasks.tracker.utils.SliceWrapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -44,19 +45,18 @@ public class RewardGetControllerTest extends AbstractIntegrationTest {
                 .queryParam("userId", user.getId())
                 .toUriString();
         //execute
-        ResponseEntity<List<RewardApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<RewardApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<RewardApiResponse>>() {
+                        new ParameterizedTypeReference<>() {
                         }
                 );
-        //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<RewardApiResponse> responses = responseEntity.getBody();
+
+        SliceWrapper<RewardApiResponse> responses = responseEntity.getBody();
         assert responses != null;
-        assertThat(responses).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(rewardEntity)));
+        assertThat(responses.getContent()).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(rewardEntity)));
     }
 
     @Test
@@ -82,19 +82,19 @@ public class RewardGetControllerTest extends AbstractIntegrationTest {
                 .queryParam("userId", user.getId())
                 .toUriString();
         //execute
-        ResponseEntity<List<RewardApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<RewardApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<RewardApiResponse>>() {
+                        new ParameterizedTypeReference<>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<RewardApiResponse> responses = responseEntity.getBody();
+        SliceWrapper<RewardApiResponse> responses = responseEntity.getBody();
         assert responses != null;
-        assertThat(responses).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(rewardEntity1), toApiResponse(rewardEntity2)));
+        assertThat(responses.getContent()).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(rewardEntity1), toApiResponse(rewardEntity2)));
     }
 
     @Test
@@ -115,18 +115,17 @@ public class RewardGetControllerTest extends AbstractIntegrationTest {
                 .queryParam("userId", userWithoutReward.getId())
                 .toUriString();
         //execute
-        ResponseEntity<List<RewardApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<RewardApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<RewardApiResponse>>() {
+                        new ParameterizedTypeReference<>() {
                         }
                 );
         //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<RewardApiResponse> responses = responseEntity.getBody();
-        assertThat(responses).isEmpty();
+        SliceWrapper<RewardApiResponse> responses = responseEntity.getBody();
+        assertThat(responses.getContent()).isEmpty();
     }
 
     @Test
@@ -139,18 +138,18 @@ public class RewardGetControllerTest extends AbstractIntegrationTest {
                 .queryParam("userId", user.getId())
                 .toUriString();
         //execute
-        ResponseEntity<List<RewardApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<RewardApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<RewardApiResponse>>() {
+                        new ParameterizedTypeReference<>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<RewardApiResponse> responses = responseEntity.getBody();
-        assertThat(responses).isEmpty();
+        SliceWrapper<RewardApiResponse> responses = responseEntity.getBody();
+        assertThat(responses.getContent()).isEmpty();
     }
 
     @Test
