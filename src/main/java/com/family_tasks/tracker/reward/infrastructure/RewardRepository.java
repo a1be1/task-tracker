@@ -34,7 +34,7 @@ public interface RewardRepository extends JpaRepository<RewardEntity, String> {
                 SELECT r.* FROM rewards r
                     WHERE user_id = :userId
             """, nativeQuery = true)
-    Slice<RewardEntity> findByUserId(@Param("userId") Integer userId, Pageable pageable);
+    Slice<RewardEntity> findByUserId(@Param("userId") Integer userId, Pageable page);
 
     @Query(value = """
                 SELECT r.* FROM rewards r
