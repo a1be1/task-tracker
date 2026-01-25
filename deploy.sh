@@ -26,7 +26,7 @@ done
 
 echo "---"
 echo "Starting services with docker-compose..."
-docker-compose up --force-recreate -d
+docker compose up --force-recreate -d
 
 echo "---"
 echo "Deployment complete! Status of new containers:"
