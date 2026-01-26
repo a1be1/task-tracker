@@ -9,9 +9,10 @@ import com.family_tasks.tracker.task.model.mapper.TaskGetMapper;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_EXIST;
@@ -35,22 +36,24 @@ public class TaskGetService {
         return mapper.toResponse(taskEntity);
     }
 
-    public List<TaskApiResponse> getTasks(TaskFilterRequest taskFilterRequest) {
+    public Slice<TaskApiResponse> getTasks(TaskFilterRequest taskFilterRequest, Pageable page) {
 
         UserEntity user = userRepository.findById(taskFilterRequest.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException(String.format(USER_NOT_EXIST, taskFilterRequest.getUserId())));
         Integer groupId = user.getGroupId();
 
-        List<TaskEntity> tasks = switch (taskFilterRequest.getFilter()) {
-            case ALL_AVAILABLE -> taskRepository.findAllTasksWithoutFilters(user.getId(), groupId);
-            case ALL_CLOSED -> taskRepository.findAllClosedTasks(groupId);
-            case IS_REPORTER_ACTIVE_TASK -> taskRepository.findTasksWhereUserIsReporterAndTasksActive(user.getId());
+        Slice<TaskEntity> tasks = switch (taskFilterRequest.getFilter()) {
+            case ALL_AVAILABLE -> taskRepository.findAllTasksWithoutFilters(user.getId(), groupId, page);
+            case ALL_CLOSED -> taskRepository.findAllClosedTasks(groupId, page);
+            case IS_REPORTER_ACTIVE_TASK ->
+                    taskRepository.findTasksWhereUserIsReporterAndTasksActive(user.getId(), page);
             case IS_REPORTER_COMPLETED_TASK ->
-                    taskRepository.findTasksWhereUserIsReporterAndTasksCompleted(user.getId());
-            case IS_EXECUTOR_ACTIVE_TASK -> taskRepository.findTasksWhereUserIsExecutorAndTasksActive(user.getId());
+                    taskRepository.findTasksWhereUserIsReporterAndTasksCompleted(user.getId(), page);
+            case IS_EXECUTOR_ACTIVE_TASK ->
+                    taskRepository.findTasksWhereUserIsExecutorAndTasksActive(user.getId(), page);
             case IS_EXECUTOR_COMPLETED_TASK ->
-                    taskRepository.findTasksWhereUserIsExecutorAndTasksCompleted(user.getId());
+                    taskRepository.findTasksWhereUserIsExecutorAndTasksCompleted(user.getId(), page);
         };
-        return tasks.stream().map(mapper::toResponse).toList();
+        return tasks.map(mapper::toResponse);
     }
 }

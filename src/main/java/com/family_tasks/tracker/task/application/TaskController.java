@@ -14,10 +14,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.family_tasks.tracker.common.validation.ValidationMessage.TASK_FILTER_NOT_SPECIFIED;
 import static com.family_tasks.tracker.common.validation.ValidationMessage.USER_NOT_SPECIFIED;
@@ -97,17 +97,18 @@ public class TaskController {
     )
 
     @GetMapping(TASK_URL)
-    public List<TaskApiResponse> getTasks(@NotNull(message = USER_NOT_SPECIFIED)
-                                          @RequestParam(name = "userId", required = false)
-                                          Integer userId,
-                                          @NotNull(message = TASK_FILTER_NOT_SPECIFIED)
-                                          @ValidTaskFilter
-                                          @RequestParam(name = "filter", required = false)
-                                          String filter) {
+    public Slice<TaskApiResponse> getTasks(@NotNull(message = USER_NOT_SPECIFIED)
+                                           @RequestParam(name = "userId", required = false)
+                                           Integer userId,
+                                           @NotNull(message = TASK_FILTER_NOT_SPECIFIED)
+                                           @ValidTaskFilter
+                                           @RequestParam(name = "filter", required = false)
+                                           String filter,
+                                           Pageable page) {
         TaskFilterRequest taskFilterRequest = TaskFilterRequest.builder()
                 .filter(TaskFilter.valueOf(filter))
                 .userId(userId)
                 .build();
-        return taskGetService.getTasks(taskFilterRequest);
+        return taskGetService.getTasks(taskFilterRequest, page);
     }
 }

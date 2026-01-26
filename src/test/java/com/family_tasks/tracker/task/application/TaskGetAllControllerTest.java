@@ -10,6 +10,7 @@ import com.family_tasks.tracker.task.model.enums.TaskPriority;
 import com.family_tasks.tracker.task.model.enums.TaskStatus;
 import com.family_tasks.tracker.user.infrastructure.UserRepository;
 import com.family_tasks.tracker.user.model.entity.UserEntity;
+import com.family_tasks.tracker.utils.SliceWrapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,20 +58,26 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("userId", firstUser.getId())
                 .queryParam("filter", TaskFilter.ALL_AVAILABLE.name())
                 .toUriString();
-        //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        // execute
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
-        //validate
+        // validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntityFirst), toApiResponse(taskEntitySecond)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent())
+                .containsExactlyInAnyOrderElementsOf(
+                        List.of(
+                                toApiResponse(taskEntityFirst),
+                                toApiResponse(taskEntitySecond)
+                        )
+                );
     }
 
     @Test
@@ -94,18 +101,19 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.ALL_AVAILABLE.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assertThat(response.isEmpty());
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent().isEmpty());
     }
 
     @Test
@@ -125,19 +133,20 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.ALL_AVAILABLE.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent())
+                .containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
     }
 
     @Test
@@ -162,19 +171,20 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.ALL_AVAILABLE.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent())
+                .containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
     }
 
     @Test
@@ -199,19 +209,19 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.ALL_AVAILABLE.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).doesNotContainAnyElementsOf(List.of(toApiResponse(taskEntity)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent().isEmpty());
     }
 
     @Test
@@ -237,19 +247,20 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.ALL_CLOSED.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent())
+                .containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
     }
 
     @Test
@@ -276,18 +287,18 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.ALL_CLOSED.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assertThat(response.isEmpty());
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent().isEmpty());
     }
 
     @Test
@@ -308,19 +319,20 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.IS_REPORTER_ACTIVE_TASK.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent())
+                .containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
     }
 
     @Test
@@ -341,19 +353,20 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.IS_REPORTER_ACTIVE_TASK.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent())
+                .containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
     }
 
     @Test
@@ -374,20 +387,20 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.IS_REPORTER_COMPLETED_TASK.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
-
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent())
+                .containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
     }
 
     @Test
@@ -411,19 +424,20 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.IS_EXECUTOR_ACTIVE_TASK.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent())
+                .containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
     }
 
     @Test
@@ -446,19 +460,20 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.IS_EXECUTOR_ACTIVE_TASK.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent())
+                .containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
     }
 
     @Test
@@ -481,19 +496,20 @@ public class TaskGetAllControllerTest extends AbstractIntegrationTest {
                 .queryParam("filter", TaskFilter.IS_EXECUTOR_COMPLETED_TASK.name())
                 .toUriString();
         //execute
-        ResponseEntity<List<TaskApiResponse>> responseEntity =
+        ResponseEntity<SliceWrapper<TaskApiResponse>> responseEntity =
                 client.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<TaskApiResponse>>() {
+                        new ParameterizedTypeReference<SliceWrapper<TaskApiResponse>>() {
                         }
                 );
         //validate
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        List<TaskApiResponse> response = responseEntity.getBody();
-        assert response != null;
-        assertThat(response).containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
+        SliceWrapper<TaskApiResponse> slice = responseEntity.getBody();
+        assertThat(slice).isNotNull();
+        assertThat(slice.getContent())
+                .containsExactlyInAnyOrderElementsOf(List.of(toApiResponse(taskEntity)));
     }
 
     @Test
